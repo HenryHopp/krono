@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lavoro MCD — Turni & Stipendio</title>
+<meta name="theme-color" content="#1c5cab">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTGF2b3JvIE1DRCIsInNob3J0X25hbWUiOiJNQ0QiLCJzdGFydF91cmwiOiIuLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwZDBkMGQiLCJ0aGVtZV9jb2xvciI6IiMxYTFhMTkiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCNGJXeHVjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBd01DOXpkbWNpSUhkcFpIUm9QU0kxTVRJaUlHaGxhV2RvZEQwaU5URXlJajQ4Y21WamRDQjNhV1IwYUQwaU5URXlJaUJvWldsbmFIUTlJalV4TWlJZ2NuZzlJakV3TkNJZ1ptbHNiRDBpSXpGaE1XRXhPU0l2UGp4MFpYaDBJSGc5SWpJMU5pSWdlVDBpTXpNMklpQm1iMjUwTFhOcGVtVTlJakkyTUNJZ1ptOXVkQzFtWVcxcGJIazlJbk41YzNSbGJTMTFhU0lnWm05dWRDMTNaV2xuYUhROUlqY3dNQ0lnWm1sc2JEMGlJMlZrWVRBd01DSWdkR1Y0ZEMxaGJtTm9iM0k5SW0xcFpHUnNaU0krVFR3dmRHVjRkRDQ4TDNOMlp6ND0iLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+<style>
+:root{
+  color-scheme: light;
+  --plane:#f4f7fb; --surface:#ffffff; --surface-2:#eef3fa;
+  --ink:#0b1220; --ink-2:#4a5568; --muted:#7c8798;
+  --grid:#e3eaf3; --axis:#c9d4e3; --border:rgba(11,18,32,0.09);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --good:#006300; --warn:#fab219; --critical:#d03b3b;
+  --accent:#1c5cab; --accent-ink:#ffffff;
+  --header:#1c5cab; --hink:#ffffff; --hink2:rgba(255,255,255,.74); --hfill:rgba(255,255,255,.16);
+  --shadow:0 1px 2px rgba(11,18,32,.06), 0 4px 14px rgba(11,18,32,.05);
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0b0f16; --surface:#151b24; --surface-2:#1d2530;
+  --ink:#ffffff; --ink-2:#c2ccd9; --muted:#8996a6;
+  --grid:#232c38; --axis:#333e4c; --border:rgba(255,255,255,0.11);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  --good:#0ca30c; --warn:#fab219; --critical:#d03b3b;
+  --accent:#2a78d6; --accent-ink:#ffffff;
+  --header:#12233d; --hink:#ffffff; --hink2:rgba(255,255,255,.70); --hfill:rgba(255,255,255,.13);
+  --shadow:0 1px 2px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--plane); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.45;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.wrap{max-width:720px;margin:0 auto;padding:0 14px 96px}
+header{
+  position:sticky;top:0;z-index:20;background:var(--header);color:var(--hink);
+  margin:0 -14px; padding:calc(env(safe-area-inset-top) + 12px) 14px 12px;
+  border-radius:0 0 18px 18px; box-shadow:0 2px 14px rgba(11,18,32,.14);
+}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.brand h1{font-size:17px;margin:0;font-weight:650;letter-spacing:-0.01em}
+.brand .sub{font-size:12px;color:var(--hink2);margin-left:auto;margin-right:2px}
+.mnav{display:flex;align-items:center;gap:8px}
+.mnav button{
+  background:var(--hfill);border:0;color:var(--hink);
+  width:34px;height:34px;border-radius:10px;font-size:17px;cursor:pointer;flex:none
+}
+.mnav .label{flex:1;text-align:center;font-weight:600;font-size:15px}
+.tabs{display:flex;gap:3px;margin-top:11px;background:var(--hfill);padding:3px;border-radius:11px}
+.tabs button{
+  flex:1;background:transparent;border:0;color:var(--hink2);padding:8px 4px;
+  border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;
+  letter-spacing:-0.01em;white-space:nowrap
+}
+.tabs button[aria-selected="true"]{background:#fff;color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-top:12px;box-shadow:var(--shadow)}
+.card h2{font-size:13px;margin:0 0 10px;color:var(--muted);font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+.hero{text-align:center;padding:20px 14px}
+.hero .big{font-size:42px;font-weight:700;letter-spacing:-0.02em;line-height:1.05;color:var(--accent)}
+.hero .cap{font-size:12.5px;color:var(--muted);margin-top:6px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{background:var(--surface-2);border-radius:11px;padding:10px 8px;text-align:center}
+.tile .v{font-size:16px;font-weight:650;letter-spacing:-0.02em;white-space:nowrap}
+.tile .k{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.25}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+td,th{padding:7px 0;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.sep td{border-top:1px solid var(--grid)}
+tr.tot td{border-top:1px solid var(--axis);font-weight:650;padding-top:9px}
+.neg{color:var(--ink-2)}
+.chip{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:baseline}
+button.primary{
+  background:var(--accent);color:var(--accent-ink);border:0;border-radius:11px;padding:12px 16px;
+  font-size:14.5px;font-weight:650;cursor:pointer;width:100%;font-family:inherit
+}
+button.ghost{
+  background:var(--surface-2);color:var(--ink);border:1px solid var(--border);
+  border-radius:10px;padding:9px 12px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:550
+}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.row>*{flex:1;min-width:0}
+label{display:block;font-size:11.5px;color:var(--muted);margin:0 0 4px;font-weight:600}
+input,select{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
+  border-radius:9px;padding:10px;font-size:15px;font-family:inherit
+}
+input[type=date],input[type=time]{min-height:42px}
+.shift{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--grid)}
+.shift:first-child{border-top:0}
+.shift .d{width:46px;flex:none;text-align:center}
+.shift .d .dd{font-size:17px;font-weight:650;line-height:1}
+.shift .d .dw{font-size:10px;color:var(--muted);text-transform:uppercase}
+.shift .m{flex:1;min-width:0}
+.shift .m .t{font-size:14px;font-weight:550}
+.shift .m .s{font-size:11.5px;color:var(--muted)}
+.shift .a{text-align:right;flex:none}
+.shift .a .v{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.x{background:none;border:0;color:var(--muted);font-size:19px;cursor:pointer;padding:0 2px;flex:none;line-height:1}
+.bar{display:flex;height:26px;border-radius:6px;overflow:hidden;gap:2px;background:transparent}
+.bar span{display:block;border-radius:2px}
+.bar span:first-child{border-radius:6px 2px 2px 6px}
+.bar span:last-child{border-radius:2px 6px 6px 2px}
+.legend{display:flex;flex-wrap:wrap;gap:10px 14px;margin-top:10px;font-size:12px;color:var(--ink-2)}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}
+.alert{
+  background:var(--surface-2);border-left:3px solid var(--warn);
+  border-radius:0 9px 9px 0;padding:10px 12px;font-size:12.5px;color:var(--ink-2);margin-top:10px
+}
+.alert b{color:var(--ink)}
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:22px 10px}
+dialog{
+  border:0;border-radius:16px 16px 0 0;background:var(--surface);color:var(--ink);
+  padding:16px;width:100%;max-width:720px;margin:auto auto 0;
+  box-shadow:0 -8px 40px rgba(0,0,0,.5)
+}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+dialog h3{margin:0 0 12px;font-size:16px}
+.chartrow{display:flex;align-items:flex-end;gap:6px;height:104px;margin-top:6px}
+.chartrow .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;min-width:0}
+.chartrow .col .bx{width:100%;background:var(--s1);border-radius:4px 4px 0 0;min-height:2px}
+.chartrow .col .lb{font-size:9.5px;color:var(--muted);white-space:nowrap}
+.chartrow .col .vv{font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.wish{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--grid)}
+.wish:first-child{border-top:0}
+.wish .nm{flex:1;min-width:0}
+.wish .nm .t{font-size:14px;font-weight:550}
+.wish .nm .s{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wish .nm .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wish>div:nth-last-child(2){flex:none}
+.wish.done .nm .t{text-decoration:line-through;color:var(--muted)}
+.prog{height:9px;border-radius:5px;background:var(--surface-2);overflow:hidden;margin:8px 0 4px}
+.prog i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.prog.over i{background:var(--critical)}
+.themebtn{background:var(--hfill);border:0;color:var(--hink);font-size:14px;cursor:pointer;
+  width:28px;height:28px;border-radius:8px;line-height:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <strong style="font-size:19px;color:#fff">M</strong>
+    <h1>Lavoro MCD</h1>
+    <span class="sub" id="ageBadge"></span>
+    <button class="themebtn" id="themeBtn" title="Cambia tema">◐</button>
+  </div>
+  <div class="mnav">
+    <button id="prevM">‹</button>
+    <div class="label" id="mLabel"></div>
+    <button id="nextM">›</button>
+  </div>
+  <div class="tabs" role="tablist">
+    <button role="tab" data-tab="turni" aria-selected="true">Turni</button>
+    <button role="tab" data-tab="paga" aria-selected="false">Stipendio</button>
+    <button role="tab" data-tab="acquisti" aria-selected="false">Acquisti</button>
+    <button role="tab" data-tab="set" aria-selected="false">Impostazioni</button>
+  </div>
+</header>
+
+<!-- ===================== TURNI ===================== -->
+<section id="tab-turni">
+  <div class="card hero">
+    <div class="big" id="hTot">—</div>
+    <div class="cap" id="hCap">ore lavorate questo mese</div>
+  </div>
+
+  <div class="card">
+    <div class="tiles">
+      <div class="tile"><div class="v" id="tShifts">0</div><div class="k">turni</div></div>
+      <div class="tile"><div class="v" id="tSupp">0</div><div class="k">ore con<br>maggiorazione</div></div>
+      <div class="tile"><div class="v" id="tAvg">0</div><div class="k">kr/ora<br>media lorda</div></div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="bar" id="hBar"></div>
+      <div class="legend" id="hLegend"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Turni del mese</h2>
+    <div id="shiftList"></div>
+    <div style="margin-top:12px"><button class="primary" id="addBtn">+ Aggiungi turno</button></div>
+    <div class="row" style="margin-top:8px">
+      <button class="ghost" id="pasteBtn">Incolla più turni</button>
+      <button class="ghost" id="copyPrev">Copia mese scorso</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PAGA ===================== -->
+<section id="tab-paga" hidden>
+  <div class="card hero">
+    <div class="big" id="pNet">—</div>
+    <div class="cap">netto stimato in banca</div>
+  </div>
+
+  <div class="card">
+    <h2>Come si arriva al netto</h2>
+    <table id="payTable"></table>
+    <div class="note" id="payNote"></div>
+  </div>
+
+  <div class="card">
+    <h2>Ti maturano a parte</h2>
+    <table id="accTable"></table>
+    <div class="note">Queste voci non finiscono nel netto del mese: le ricevi separatamente (fritvalg / feriepenge).</div>
+  </div>
+
+  <div class="card">
+    <h2>Netto per mese</h2>
+    <div class="chartrow" id="trend"></div>
+    <div class="note">Solo i mesi in cui hai inserito dei turni.</div>
+  </div>
+
+  <div class="card" id="cardFuture">
+    <h2>Quando compi 18 anni</h2>
+    <div id="futureBox"></div>
+  </div>
+</section>
+
+<!-- ===================== ACQUISTI ===================== -->
+<section id="tab-acquisti" hidden>
+  <div class="card hero">
+    <div class="big" id="aLeft">—</div>
+    <div class="cap" id="aLeftCap">ti resta dopo gli acquisti</div>
+  </div>
+
+  <div class="card">
+    <div class="prog" id="aProg"><i style="width:0%"></i></div>
+    <div class="row" style="font-size:12px;color:var(--muted)">
+      <span id="aSpent">—</span>
+      <span style="text-align:right" id="aNet">—</span>
+    </div>
+    <div class="note" id="aNote"></div>
+  </div>
+
+  <div class="card">
+    <h2>Lista acquisti</h2>
+    <div id="wishList"></div>
+    <div style="margin-top:12px"><button class="primary" id="addWish">+ Aggiungi acquisto</button></div>
+  </div>
+</section>
+
+<!-- ===================== IMPOSTAZIONI ===================== -->
+<section id="tab-set" hidden>
+  <div class="card">
+    <h2>Tu</h2>
+    <div class="row">
+      <div><label>Data di nascita</label><input type="date" id="s_birth"></div>
+      <div><label>Ore garantite / mese</label><input type="number" step="0.01" id="s_guar"></div>
+    </div>
+    <div style="margin-top:8px"><label>Il mese di paga parte il giorno</label>
+      <select id="s_period">
+        <option value="1">1 — mese solare (1–31)</option>
+        <option value="21">21 — dal 21 al 20 (il tuo)</option>
+      </select>
+    </div>
+    <div class="note">Se in un mese lavori meno delle ore garantite, l'app paga comunque le ore garantite.<br>Serale = feriali 18–24 · Sabato = 14–24 · Domenica = 06–24 · Notte = 00–06.</div>
+  </div>
+
+  <div class="card">
+    <h2>Tariffe — sotto i 18 anni</h2>
+    <div class="row">
+      <div><label>Paga oraria</label><input type="number" step="0.01" id="u_base"></div>
+      <div><label>Serale</label><input type="number" step="0.01" id="u_aften"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>Sabato</label><input type="number" step="0.01" id="u_lor"></div>
+      <div><label>Domenica</label><input type="number" step="0.01" id="u_son"></div>
+      <div><label>Notte</label><input type="number" step="0.01" id="u_nat"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Tariffe — da 18 anni</h2>
+    <div class="row">
+      <div><label>Paga oraria</label><input type="number" step="0.01" id="o_base"></div>
+      <div><label>Serale</label><input type="number" step="0.01" id="o_aften"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>Sabato</label><input type="number" step="0.01" id="o_lor"></div>
+      <div><label>Domenica</label><input type="number" step="0.01" id="o_son"></div>
+      <div><label>Notte</label><input type="number" step="0.01" id="o_nat"></div>
+    </div>
+    <div class="note">Serale = feriali 18–24 · Sabato = 14–24 · Domenica = 06–24 · Notte = 00–06.<br>L'app passa da sola a queste tariffe dal giorno del tuo compleanno.</div>
+  </div>
+
+  <div class="card">
+    <h2>Extra e trattenute</h2>
+    <div class="row">
+      <div><label>Kost / ora</label><input type="number" step="0.01" id="s_kost"></div>
+      <div><label>Kost extra</label><input type="number" step="0.01" id="s_kostx"></div>
+      <div><label>Madpenge</label><input type="number" step="0.01" id="s_mad"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>Fradrag / mese</label><input type="number" step="0.01" id="s_fradrag"></div>
+      <div><label>Trækprocent %</label><input type="number" step="0.01" id="s_trak"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>ATP / mese</label><input type="number" step="0.01" id="s_atp"></div>
+      <div><label>Forening</label><input type="number" step="0.01" id="s_forening"></div>
+      <div><label>Pensione %</label><input type="number" step="0.01" id="s_pension"></div>
+    </div>
+    <div class="note">Fradrag e trækprocent li trovi sul tuo skattekort (skat.dk). Se cambiano, aggiornali qui.</div>
+  </div>
+
+  <div class="card">
+    <h2>Dati</h2>
+    <div class="row">
+      <button class="ghost" id="expBtn">Esporta backup</button>
+      <button class="ghost" id="impBtn">Importa backup</button>
+    </div>
+    <div class="note">I tuoi dati stanno solo su questo dispositivo. Fai un backup ogni tanto: se cancelli i dati del browser, spariscono.</div>
+  </div>
+</section>
+
+</div>
+
+<!-- ===================== DIALOGS ===================== -->
+<dialog id="dlgShift">
+  <h3 id="dlgShiftTitle">Nuovo turno</h3>
+  <div><label>Data</label><input type="date" id="f_date"></div>
+  <div class="row" style="margin-top:10px">
+    <div><label>Inizio</label><input type="time" id="f_start" step="300"></div>
+    <div><label>Fine</label><input type="time" id="f_end" step="300"></div>
+    <div><label>Pausa (min)</label><input type="number" id="f_pause" step="5" min="0"></div>
+  </div>
+  <div style="margin-top:10px"><label>Pausa dalle (facoltativo)</label><input type="time" id="f_pstart" step="60"></div>
+  <div class="note" style="margin-top:6px">Se sai a che ora hai fatto la pausa, mettila: le maggiorazioni vengono calcolate esatte.</div>
+  <div style="margin-top:14px"><button class="primary" id="f_save">Salva turno</button></div>
+  <div style="margin-top:8px"><button class="ghost" id="f_cancel" style="width:100%">Annulla</button></div>
+</dialog>
+
+<dialog id="dlgWish">
+  <h3>Nuovo acquisto</h3>
+  <div><label>Cosa vuoi comprare</label><input type="text" id="w_name" placeholder="es. cuffie"></div>
+  <div style="margin-top:10px"><label>Prezzo (kr)</label><input type="number" id="w_price" step="1"></div>
+  <div style="margin-top:14px"><button class="primary" id="w_save">Aggiungi</button></div>
+  <div style="margin-top:8px"><button class="ghost" id="w_cancel" style="width:100%">Annulla</button></div>
+</dialog>
+
+<dialog id="dlgPaste">
+  <h3>Incolla più turni</h3>
+  <div class="note" style="margin:0 0 8px">Una riga per turno:<br>
+  <code>data · inizio · fine · minuti di pausa · ora della pausa</code><br>
+  Esempi: <code>2026-08-18 18:00 20:30</code> · <code>18/08 13:30 17:21 30 16:00</code><br>
+  I turni già presenti vengono saltati, puoi incollare senza paura di duplicare.</div>
+  <textarea id="p_text" rows="7" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);border-radius:9px;padding:10px;font-family:ui-monospace,monospace;font-size:13px"></textarea>
+  <div style="margin-top:14px"><button class="primary" id="p_save">Importa</button></div>
+  <div style="margin-top:8px"><button class="ghost" id="p_cancel" style="width:100%">Annulla</button></div>
+</dialog>
+
+<dialog id="dlgText">
+  <h3 id="t_title">Backup</h3>
+  <textarea id="t_text" rows="9" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);border-radius:9px;padding:10px;font-family:ui-monospace,monospace;font-size:11px"></textarea>
+  <div style="margin-top:14px"><button class="primary" id="t_ok">OK</button></div>
+  <div style="margin-top:8px"><button class="ghost" id="t_cancel" style="width:100%">Chiudi</button></div>
+</dialog>
+
+<script>
+/* ============================================================
+   STATO
+   ============================================================ */
+const KEY = 'mcd_lavoro_v1';
+const DEF = {
+  birth: '2008-01-01',
+  guaranteed: 65,
+  periodStart: 21,
+  under: { base:88.96, aften:16.54, lor:16.54, son:26.15, nat:0 },
+  over:  { base:148.49, aften:23.03, lor:23.03, son:31.46, nat:31.46 },
+  kost: 1.00, kostx: 6.00, mad: 15.00,
+  fradrag: 0, trak: 0, atp: 66, forening: 50, pension: 0,
+  shifts: [], wishes: [], theme: 'light'
+};
+let S = load();
+function load(){
+  try { return Object.assign({}, DEF, JSON.parse(localStorage.getItem(KEY) || '{}')); }
+  catch(e){ return Object.assign({}, DEF); }
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+let cur = new Date();
+let curY = cur.getFullYear(), curM = cur.getMonth();
+
+/* ============================================================
+   UTILI
+   ============================================================ */
+const MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+const GG = ['dom','lun','mar','mer','gio','ven','sab'];
+const kr = n => n.toLocaleString('da-DK',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' kr';
+const kr0 = n => Math.round(n).toLocaleString('da-DK') + ' kr';
+const h = n => n.toFixed(2).replace('.',',') + ' h';
+const pad = n => String(n).padStart(2,'0');
+const iso = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseISO = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+const uid = () => Math.random().toString(36).slice(2,10);
+
+/* --- Pasqua (algoritmo di Gauss/Meeus) --- */
+function easter(y){
+  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,
+        f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),
+        hh=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,
+        l=(32+2*e+2*i-hh-k)%7,m=Math.floor((a+11*hh+22*l)/451),
+        mo=Math.floor((hh+l-7*m+114)/31),da=((hh+l-7*m+114)%31)+1;
+  return new Date(y,mo-1,da);
+}
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+/* Festivi danesi con Helligdagsbetaling (dal foglio paga McDonald's) */
+function holidays(y){
+  const E=easter(y), m={};
+  const put=(d,name,from)=>{ m[iso(d)]={name,from:from||0}; };
+  put(new Date(y,0,1),'Nytårsdag');
+  put(addD(E,-3),'Skærtorsdag');
+  put(addD(E,-2),'Langfredag');
+  put(addD(E,1),'2. påskedag');
+  put(addD(E,39),'Kr. Himmelfartsdag');
+  put(addD(E,49),'Pinsedag');
+  put(addD(E,50),'2. pinsedag');
+  put(new Date(y,11,24),'Juleaftensdag (dopo le 15)',15*60);
+  put(new Date(y,11,25),'1. juledag');
+  put(new Date(y,11,26),'2. juledag');
+  return m;
+}
+const holCache={};
+const getHol=y=>holCache[y]||(holCache[y]=holidays(y));
+
+/* --- tariffe valide alla data del turno --- */
+function ratesFor(dateStr){
+  const b = parseISO(S.birth), d = parseISO(dateStr);
+  const eighteen = new Date(b.getFullYear()+18, b.getMonth(), b.getDate());
+  return d >= eighteen ? S.over : S.under;
+}
+function ageOn(d){
+  const b=parseISO(S.birth); let a=d.getFullYear()-b.getFullYear();
+  const m=d.getMonth()-b.getMonth();
+  if(m<0 || (m===0 && d.getDate()<b.getDate())) a--;
+  return a;
+}
+
+/* ============================================================
+   CALCOLO DI UN TURNO — minuto per minuto
+   ============================================================ */
+function calcShift(sh){
+  const [sh_h,sh_m]=sh.start.split(':').map(Number);
+  const [eh,em]=sh.end.split(':').map(Number);
+  let startMin = sh_h*60+sh_m, endMin = eh*60+em;
+  if(endMin <= startMin) endMin += 1440;           // turno oltre mezzanotte
+  const day0 = parseISO(sh.date);
+  const out = {plain:0, aften:0, lor:0, son:0, nat:0, hol:0};
+
+  // pausa collocata a un orario preciso: la tolgo esattamente da lì
+  let pFrom=null, pTo=null;
+  if(sh.pstart && sh.pause>0){
+    const [ph,pm]=sh.pstart.split(':').map(Number);
+    pFrom = ph*60+pm; if(pFrom < startMin) pFrom += 1440;
+    pTo = pFrom + sh.pause;
+  }
+
+  for(let t=startMin; t<endMin; t++){
+    if(pFrom!==null && t>=pFrom && t<pTo) continue;  // minuti di pausa: non pagati
+    const dayOff = Math.floor(t/1440);
+    const min = t%1440;
+    const d = addD(day0, dayOff);
+    const dow = d.getDay();                        // 0=dom, 6=sab
+    // maggiorazione oraria (una sola per minuto)
+    if(min < 360)                       out.nat++;                 // 00:00–06:00
+    else if(dow===0)                    out.son++;                 // domenica 06:00–24:00
+    else if(dow===6 && min>=840)        out.lor++;                 // sabato 14:00–24:00
+    else if(dow>=1 && dow<=5 && min>=1080) out.aften++;            // feriali 18:00–24:00
+    else                                out.plain++;
+    // festivo (si somma, è pagamento al 100% in più)
+    const hol = getHol(d.getFullYear())[iso(d)];
+    if(hol && min >= hol.from) out.hol++;
+  }
+  const raw = (endMin-startMin)/60;
+  const pause = (sh.pause||0)/60;
+  const worked = Math.max(0, raw - pause);
+  // se non so a che ora cade la pausa, la ripartisco in proporzione
+  const k = (pFrom!==null) ? 1 : (raw>0 ? worked/raw : 0);
+  const r = {};
+  for(const key in out) r[key] = (out[key]/60)*k;
+  r.total = (pFrom!==null) ? (out.plain+out.aften+out.lor+out.son+out.nat)/60 : worked;
+  r.rates = ratesFor(sh.date);
+  r.gross = r.total*r.rates.base + r.aften*r.rates.aften + r.lor*r.rates.lor
+          + r.son*r.rates.son + r.nat*r.rates.nat + r.hol*r.rates.base
+          + r.total*S.kost + S.kostx;
+  const d0=parseISO(sh.date); const hol0=getHol(d0.getFullYear())[sh.date];
+  r.holName = (hol0 && r.hol>0) ? hol0.name : null;
+  return r;
+}
+
+/* ============================================================
+   CALCOLO DEL MESE
+   ============================================================ */
+/* A quale periodo di paga appartiene una data.
+   Con periodStart=21 il mese di paga va dal 21 del mese prima al 20 di questo. */
+function periodOf(dateStr){
+  const d=parseISO(dateStr); let y=d.getFullYear(), m=d.getMonth();
+  const ps = +S.periodStart || 1;
+  if(ps>1 && d.getDate()>=ps){ m++; if(m>11){m=0;y++;} }
+  return {y,m};
+}
+function periodRange(y,m){
+  const ps = +S.periodStart || 1;
+  if(ps<=1) return {from:new Date(y,m,1), to:new Date(y,m+1,0)};
+  return {from:new Date(y,m-1,ps), to:new Date(y,m,ps-1)};
+}
+function monthShifts(y,m){
+  return S.shifts.filter(s=>{ const p=periodOf(s.date); return p.y===y && p.m===m; })
+                 .sort((a,b)=> a.date.localeCompare(b.date) || a.start.localeCompare(b.start));
+}
+const r2 = n => Math.round(n*100)/100;
+function calcMonth(y,m){
+  const list = monthShifts(y,m);
+  const A = {plain:0,aften:0,lor:0,son:0,nat:0,hol:0,total:0};
+  // le ore si sommano prima e si arrotondano a 2 decimali, poi si moltiplicano
+  // per la tariffa — è così che fa la busta paga vera
+  const G = {under:{plain:0,aften:0,lor:0,son:0,nat:0,hol:0,total:0},
+             over: {plain:0,aften:0,lor:0,son:0,nat:0,hol:0,total:0}};
+  list.forEach(s=>{
+    const r=calcShift(s);
+    const g = (r.rates===S.over) ? G.over : G.under;
+    for(const k in g) g[k]+=r[k]||0;
+  });
+  let payBase=0, payAften=0, payLor=0, paySon=0, payNat=0, payHol=0;
+  ['under','over'].forEach(name=>{
+    const g=G[name], rt=S[name];
+    for(const k in g) g[k]=r2(g[k]);
+    for(const k in A) A[k]+=g[k];
+    payBase += g.total*rt.base;
+    payAften+= g.aften*rt.aften;
+    payLor  += g.lor*rt.lor;
+    paySon  += g.son*rt.son;
+    payNat  += g.nat*rt.nat;
+    payHol  += g.hol*rt.base;
+  });
+  // garanzia ore minime
+  const rt = ratesFor(list.length ? list[0].date : iso(new Date(y,m,15)));
+  const guarPay = S.guaranteed * rt.base;
+  const guarBonus = Math.max(0, guarPay - payBase);
+
+  const kost  = A.total*S.kost;
+  const kostx = list.length*S.kostx;
+  const gross = payBase+guarBonus+payAften+payLor+paySon+payNat+payHol+kost+kostx;
+
+  // trattenute (verificate sulle buste paga: troncamento a corone intere)
+  const pension = gross*(S.pension/100);
+  const amIncome = gross - S.atp - pension;
+  const amb = Math.trunc(amIncome*0.08);
+  const taxable = amIncome - amb - S.fradrag;
+  const tax = taxable>0 ? Math.trunc(taxable*(S.trak/100)) : 0;
+  const mad = list.length*S.mad;
+  const net = gross - S.atp - pension - amb - tax - mad - S.forening;
+
+  return {list,A,payBase,guarBonus,payAften,payLor,paySon,payNat,payHol,kost,kostx,
+          gross,pension,amIncome,amb,taxable,tax,mad,net,
+          fritvalg: gross*0.0985, ferie: gross*0.125, rates: rt};
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const $ = id => document.getElementById(id);
+
+function render(){
+  const R = periodRange(curY,curM);
+  const short = d => d.getDate()+' '+MESI[d.getMonth()].slice(0,3).toLowerCase();
+  $('mLabel').innerHTML = MESI[curM]+' '+curY +
+    ((+S.periodStart||1)>1 ? `<div style="font-size:10.5px;color:var(--muted);font-weight:500;letter-spacing:0">${short(R.from)} – ${short(R.to)}</div>` : '');
+  const a = ageOn(new Date());
+  $('ageBadge').textContent = a + ' anni';
+  const M = calcMonth(curY,curM);
+  renderTurni(M); renderPaga(M); renderAcquisti(M);
+}
+
+function renderTurni(M){
+  $('hTot').textContent = M.A.total>0 ? h(M.A.total) : '0,00 h';
+  const supp = M.A.aften+M.A.lor+M.A.son+M.A.nat;
+  $('tShifts').textContent = M.list.length;
+  $('tSupp').textContent = supp.toFixed(1).replace('.',',');
+  $('tAvg').textContent = M.A.total>0 ? (M.gross/M.A.total).toFixed(0) : '—';
+  $('hCap').textContent = M.list.length ? 'ore lavorate · '+kr0(M.gross)+' lordi' : 'nessun turno questo mese';
+
+  // barra composizione ore
+  const segs = [
+    {k:'Normale', v:M.A.plain, c:'var(--s1)'},
+    {k:'Serale',  v:M.A.aften, c:'var(--s2)'},
+    {k:'Sabato',  v:M.A.lor,   c:'var(--s3)'},
+    {k:'Domenica',v:M.A.son,   c:'var(--s4)'},
+    {k:'Notte',   v:M.A.nat,   c:'var(--s5)'}
+  ].filter(s=>s.v>0.001);
+  const tot = segs.reduce((a,b)=>a+b.v,0) || 1;
+  $('hBar').innerHTML = segs.map(s=>
+    `<span style="width:${(s.v/tot*100).toFixed(2)}%;background:${s.c}" title="${s.k}"></span>`).join('');
+  $('hLegend').innerHTML = segs.map(s=>
+    `<span><i class="chip" style="background:${s.c}"></i>${s.k} · ${h(s.v)}</span>`).join('');
+
+  const L = $('shiftList');
+  if(!M.list.length){ L.innerHTML = '<div class="empty">Nessun turno.<br>Aggiungine uno qui sotto.</div>'; return; }
+  L.innerHTML = M.list.map(s=>{
+    const r=calcShift(s), d=parseISO(s.date);
+    const tags=[];
+    if(r.aften>0.01) tags.push('serale');
+    if(r.lor>0.01)   tags.push('sabato');
+    if(r.son>0.01)   tags.push('domenica');
+    if(r.nat>0.01)   tags.push('notte');
+    if(r.holName)    tags.push('🎉 '+r.holName);
+    return `<div class="shift">
+      <div class="d"><div class="dd">${d.getDate()}</div><div class="dw">${GG[d.getDay()]}</div></div>
+      <div class="m">
+        <div class="t">${s.start}–${s.end}${s.pause?` · pausa ${s.pause}′${s.pstart?' ('+s.pstart+')':''}`:''}</div>
+        <div class="s">${h(r.total)}${tags.length?' · '+tags.join(', '):''}</div>
+      </div>
+      <div class="a"><div class="v">${kr0(r.gross)}</div></div>
+      <button class="x" data-edit="${s.id}">✎</button>
+      <button class="x" data-del="${s.id}">×</button>
+    </div>`;
+  }).join('');
+  L.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    S.shifts = S.shifts.filter(x=>x.id!==b.dataset.del); save(); render();
+  });
+  L.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openShift(b.dataset.edit));
+}
+
+function renderPaga(M){
+  $('pNet').textContent = M.list.length ? kr0(M.net) : '—';
+  const rw = (k,v,cls) => `<tr class="${cls||''}"><td>${k}</td><td class="n">${v}</td></tr>`;
+  let t = '<tr><th>Voce</th><th class="n">Importo</th></tr>';
+  const dec = n => n.toFixed(2).replace('.',',');
+  t += rw(`Ore base · ${h(M.A.total)} × ${dec(M.rates.base)}`, kr(M.payBase));
+  if(M.guarBonus>0.01) t += rw(`Integrazione ore garantite (${S.guaranteed} h)`, kr(M.guarBonus));
+  if(M.payAften>0.01)  t += rw(`Aftentillæg · ${h(M.A.aften)}`, kr(M.payAften));
+  if(M.payLor>0.01)    t += rw(`Lørdagstillæg · ${h(M.A.lor)}`, kr(M.payLor));
+  if(M.paySon>0.01)    t += rw(`Søndagstillæg · ${h(M.A.son)}`, kr(M.paySon));
+  if(M.payNat>0.01)    t += rw(`Nattillæg · ${h(M.A.nat)}`, kr(M.payNat));
+  if(M.payHol>0.01)    t += rw(`Helligdagstillæg · ${h(M.A.hol)}`, kr(M.payHol));
+  if(M.kost>0.01)      t += rw(`Kosttillæg · ${h(M.A.total)} × ${dec(S.kost)}`, kr(M.kost));
+  if(M.kostx>0.01)     t += rw(`Særligt kosttillæg · ${M.list.length} turni`, kr(M.kostx));
+  t += rw('<b>Lordo</b>', '<b>'+kr(M.gross)+'</b>', 'tot');
+  t += rw('ATP', '−'+kr(S.atp), 'sep');
+  if(M.pension>0.01) t += rw(`Pensione (${S.pension}%)`, '−'+kr(M.pension));
+  t += rw('AM-bidrag · 8%', '−'+kr(M.amb));
+  t += rw(`Tasse · ${S.trak}% su ${kr(Math.max(0,M.taxable))}`, '−'+kr(M.tax));
+  t += rw(`Madpenge · ${M.list.length} × ${dec(S.mad)}`, '−'+kr(M.mad));
+  t += rw('Personaleforening', '−'+kr(S.forening));
+  t += rw('<b>Netto in banca</b>', '<b>'+kr(M.net)+'</b>', 'tot');
+  $('payTable').innerHTML = t;
+  $('payNote').textContent = `Fradrag applicato: ${kr(S.fradrag)}. AM-bidrag e tasse sono arrotondati per difetto a corone intere, come sulla busta paga vera.`;
+
+  $('accTable').innerHTML =
+    rw('Særligt løntillæg · 9,85%', kr(M.fritvalg)) +
+    rw('Feriepenge · 12,5%', kr(M.ferie));
+
+  // trend netto per mese
+  const byMonth = {};
+  S.shifts.forEach(s=>{ const d=parseISO(s.date); byMonth[d.getFullYear()+'-'+pad(d.getMonth()+1)] = true; });
+  const keys = Object.keys(byMonth).sort().slice(-8);
+  if(keys.length<2){ $('trend').innerHTML = '<div class="empty" style="flex:1">Serve almeno un secondo mese<br>per vedere il confronto.</div>'; }
+  else {
+    const vals = keys.map(k=>{ const [y,m]=k.split('-').map(Number); return {k, n:calcMonth(y,m-1).net, y, m}; });
+    const max = Math.max(...vals.map(v=>v.n), 1);
+    $('trend').innerHTML = vals.map(v=>{
+      const on = (v.y===curY && v.m-1===curM);
+      return `<div class="col">
+        <div class="vv">${Math.round(v.n/1000*10)/10}k</div>
+        <div class="bx" style="height:${Math.max(2,v.n/max*70)}px;background:${on?'var(--s1)':'var(--axis)'}"></div>
+        <div class="lb">${MESI[v.m-1].slice(0,3).toLowerCase()}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // proiezione 18 anni
+  const b=parseISO(S.birth);
+  const eighteen=new Date(b.getFullYear()+18,b.getMonth(),b.getDate());
+  const box=$('futureBox');
+  if(new Date()>=eighteen){ $('cardFuture').hidden = true; }
+  else {
+    $('cardFuture').hidden = false;
+    const days = Math.ceil((eighteen-new Date())/864e5);
+    if(!M.list.length){ box.innerHTML = `<div class="note">Compi 18 anni fra ${days} giorni. Inserisci dei turni per vedere quanto cambierebbe.</div>`; }
+    else {
+      const bak = S.birth;
+      S.birth = iso(new Date(curY-20, b.getMonth(), b.getDate())); // simula "già 18enne"
+      const F = calcMonth(curY,curM);
+      S.birth = bak;
+      const diff = F.net - M.net;
+      box.innerHTML = `
+        <div class="tiles">
+          <div class="tile"><div class="v">${kr0(M.net)}</div><div class="k">netto oggi</div></div>
+          <div class="tile"><div class="v" style="color:var(--good)">${kr0(F.net)}</div><div class="k">netto da 18enne</div></div>
+          <div class="tile"><div class="v" style="color:var(--good)">+${kr0(diff)}</div><div class="k">differenza</div></div>
+        </div>
+        <div class="alert">Compi 18 anni fra <b>${days} giorni</b>. Con le stesse ore di questo mese guadagneresti
+        <b>${kr0(diff)}</b> in più al mese. Da quel momento potrebbe partire anche la pensione: attivala nelle impostazioni quando la vedi in busta paga.</div>`;
+    }
+  }
+}
+
+function renderAcquisti(M){
+  const open = S.wishes.filter(w=>!w.done);
+  const spent = open.reduce((a,w)=>a+(+w.price||0),0);
+  const left = M.net - spent;
+  $('aLeft').textContent = M.list.length ? kr0(left) : '—';
+  $('aLeft').style.color = left<0 ? 'var(--critical)' : 'var(--ink)';
+  $('aSpent').textContent = 'acquisti ' + kr0(spent);
+  $('aNet').textContent = 'netto ' + kr0(M.net);
+  const pct = M.net>0 ? Math.min(100, spent/M.net*100) : 0;
+  const p = $('aProg'); p.classList.toggle('over', spent>M.net);
+  p.querySelector('i').style.width = pct.toFixed(1)+'%';
+
+  if(!M.list.length) $('aNote').textContent = 'Aggiungi dei turni per vedere quanto ti resta.';
+  else if(left>=0)   $('aNote').textContent = `Puoi permetterti tutta la lista e ti restano ${kr0(left)}.`;
+  else {
+    const mesi = M.net>0 ? Math.ceil(spent/M.net) : 0;
+    $('aNote').textContent = `Ti mancano ${kr0(-left)}. Con uno stipendio come questo servono circa ${mesi} mesi per tutta la lista.`;
+  }
+
+  const L=$('wishList');
+  if(!S.wishes.length){ L.innerHTML='<div class="empty">Niente in lista.</div>'; return; }
+  L.innerHTML = S.wishes.map(w=>{
+    const q = M.net>0 ? (w.price/M.net*100) : 0;
+    const hrs = M.A.total>0 ? w.price/(M.net/M.A.total) : 0;
+    return `<div class="wish ${w.done?'done':''}">
+      <input type="checkbox" data-chk="${w.id}" ${w.done?'checked':''} style="width:20px;height:20px;flex:none">
+      <div class="nm"><div class="t">${w.name}</div>
+        <div class="s">${q?q.toFixed(0)+'% dello stipendio':''}${hrs?' · ≈ '+hrs.toFixed(0)+' ore di lavoro':''}</div></div>
+      <div style="font-weight:650;font-variant-numeric:tabular-nums">${kr0(w.price)}</div>
+      <button class="x" data-wdel="${w.id}">×</button>
+    </div>`;
+  }).join('');
+  L.querySelectorAll('[data-chk]').forEach(c=>c.onchange=()=>{
+    const w=S.wishes.find(x=>x.id===c.dataset.chk); w.done=c.checked; save(); render();
+  });
+  L.querySelectorAll('[data-wdel]').forEach(b=>b.onclick=()=>{
+    S.wishes = S.wishes.filter(x=>x.id!==b.dataset.wdel); save(); render();
+  });
+}
+
+/* ============================================================
+   INTERAZIONE
+   ============================================================ */
+document.querySelectorAll('[role=tab]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('[role=tab]').forEach(x=>x.setAttribute('aria-selected', x===b));
+  ['turni','paga','acquisti','set'].forEach(t=> $('tab-'+t).hidden = (t!==b.dataset.tab));
+  window.scrollTo(0,0);
+});
+$('prevM').onclick=()=>{ curM--; if(curM<0){curM=11;curY--;} render(); };
+$('nextM').onclick=()=>{ curM++; if(curM>11){curM=0;curY++;} render(); };
+
+$('themeBtn').onclick=()=>{
+  S.theme = S.theme==='dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = S.theme; save();
+};
+
+let editing = null;
+function openShift(id){
+  editing = id;
+  const dlg=$('dlgShift');
+  if(id){
+    const s=S.shifts.find(x=>x.id===id);
+    $('dlgShiftTitle').textContent='Modifica turno';
+    $('f_date').value=s.date; $('f_start').value=s.start; $('f_end').value=s.end; $('f_pause').value=s.pause||0;
+    $('f_pstart').value=s.pstart||'';
+  } else {
+    $('dlgShiftTitle').textContent='Nuovo turno';
+    const today=new Date();
+    const d = (today.getFullYear()===curY && today.getMonth()===curM) ? today : new Date(curY,curM,1);
+    $('f_date').value=iso(d); $('f_start').value='16:00'; $('f_end').value='22:00'; $('f_pause').value=0;
+    $('f_pstart').value='';
+  }
+  dlg.showModal();
+}
+$('addBtn').onclick=()=>openShift(null);
+$('f_cancel').onclick=()=>$('dlgShift').close();
+$('f_save').onclick=()=>{
+  const o={date:$('f_date').value, start:$('f_start').value, end:$('f_end').value,
+           pause:+$('f_pause').value||0, pstart:$('f_pstart').value||null};
+  if(!o.date||!o.start||!o.end) return;
+  if(editing){ Object.assign(S.shifts.find(x=>x.id===editing), o); }
+  else { S.shifts.push(Object.assign({id:uid()},o)); }
+  save(); $('dlgShift').close();
+  const pp=periodOf(o.date); curY=pp.y; curM=pp.m;
+  render();
+};
+
+$('copyPrev').onclick=()=>{
+  let py=curY, pm=curM-1; if(pm<0){pm=11;py--;}
+  const prev=monthShifts(py,pm);
+  if(!prev.length){ alert('Il mese scorso è vuoto.'); return; }
+  if(!confirm(`Copio ${prev.length} turni da ${MESI[pm]} a ${MESI[curM]}?`)) return;
+  const dim=new Date(curY,curM+1,0).getDate();
+  prev.forEach(s=>{
+    const day=Math.min(parseISO(s.date).getDate(), dim);
+    S.shifts.push({id:uid(), date:`${curY}-${pad(curM+1)}-${pad(day)}`, start:s.start, end:s.end, pause:s.pause||0});
+  });
+  save(); render();
+};
+
+$('pasteBtn').onclick=()=>{ $('p_text').value=''; $('dlgPaste').showModal(); };
+$('p_cancel').onclick=()=>$('dlgPaste').close();
+$('p_save').onclick=()=>{
+  const lines=$('p_text').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  let n=0, dup=0;
+  lines.forEach(line=>{
+    // 1. estraggo la data e la tolgo dalla riga
+    let date=null, rest=line;
+    let m = line.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(m){ date=m[0]; rest=line.replace(m[0],' '); }
+    if(!date){ m = line.match(/\b(\d{1,2})[\/.](\d{1,2})(?:[\/.](\d{2,4}))?\b/);
+      if(m){ let y=m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):curY;
+             date=`${y}-${pad(+m[2])}-${pad(+m[1])}`; rest=line.replace(m[0],' '); } }
+    if(!date){ m = rest.match(/^(\d{1,2})\s/); 
+      if(m){ const p0=periodRange(curY,curM).from, dd=+m[1];
+             const mm = dd>=(+S.periodStart||1) ? p0.getMonth() : (p0.getMonth()+1)%12;
+             const yy = (dd>=(+S.periodStart||1)) ? p0.getFullYear() : (p0.getMonth()===11?p0.getFullYear()+1:p0.getFullYear());
+             date=`${yy}-${pad(mm+1)}-${pad(dd)}`; rest=rest.replace(m[0],' '); } }
+    if(!date) return;
+    // 2. orari: 1° inizio, 2° fine, 3° (facoltativo) inizio pausa
+    const times=[...rest.matchAll(/(\d{1,2})[:.](\d{2})/g)].map(x=>pad(+x[1])+':'+x[2]);
+    if(times.length<2) return;
+    rest = rest.replace(/(\d{1,2})[:.](\d{2})/g,' ');
+    // 3. numero rimasto = minuti di pausa
+    const pm = rest.match(/\b(\d{1,3})\b/);
+    const o = {id:uid(), date, start:times[0], end:times[1],
+               pause: pm?+pm[1]:0, pstart: times[2]||null};
+    if(S.shifts.some(x=>x.date===o.date && x.start===o.start)){ dup++; return; }
+    S.shifts.push(o); n++;
+  });
+  save(); $('dlgPaste').close(); render();
+  const msg = [];
+  if(n) msg.push(n+' turni aggiunti');
+  if(dup) msg.push(dup+' già presenti, saltati');
+  if(!n && !dup) alert('Non sono riuscito a leggere nessun turno. Controlla il formato.');
+  else alert(msg.join(' · '));
+};
+
+$('addWish').onclick=()=>{ $('w_name').value=''; $('w_price').value=''; $('dlgWish').showModal(); };
+$('w_cancel').onclick=()=>$('dlgWish').close();
+$('w_save').onclick=()=>{
+  const n=$('w_name').value.trim(), p=+$('w_price').value;
+  if(!n||!p) return;
+  S.wishes.push({id:uid(), name:n, price:p, done:false});
+  save(); $('dlgWish').close(); render();
+};
+
+/* --- impostazioni --- */
+const FIELDS = {
+  s_birth:'birth', s_guar:'guaranteed', s_kost:'kost', s_kostx:'kostx', s_mad:'mad',
+  s_fradrag:'fradrag', s_trak:'trak', s_atp:'atp', s_forening:'forening', s_pension:'pension',
+  s_period:'periodStart'
+};
+const RATEF = {
+  u_base:['under','base'], u_aften:['under','aften'], u_lor:['under','lor'], u_son:['under','son'], u_nat:['under','nat'],
+  o_base:['over','base'],  o_aften:['over','aften'],  o_lor:['over','lor'],  o_son:['over','son'],  o_nat:['over','nat']
+};
+function fillSettings(){
+  for(const id in FIELDS) $(id).value = S[FIELDS[id]];
+  for(const id in RATEF){ const [g,k]=RATEF[id]; $(id).value = S[g][k]; }
+}
+for(const id in FIELDS) document.addEventListener('DOMContentLoaded',()=>{});
+Object.keys(FIELDS).forEach(id=>{
+  $(id).oninput = ()=>{ const k=FIELDS[id];
+    S[k] = (id==='s_birth') ? $(id).value : (+$(id).value||0); save(); render(); };
+});
+Object.keys(RATEF).forEach(id=>{
+  $(id).oninput = ()=>{ const [g,k]=RATEF[id]; S[g][k] = +$(id).value||0; save(); render(); };
+});
+
+$('expBtn').onclick=()=>{
+  $('t_title').textContent='Backup — copia questo testo e salvalo';
+  $('t_text').value=JSON.stringify(S);
+  $('t_ok').textContent='Copia';
+  $('t_ok').onclick=()=>{ $('t_text').select(); document.execCommand('copy'); $('dlgText').close(); };
+  $('dlgText').showModal();
+};
+$('impBtn').onclick=()=>{
+  $('t_title').textContent='Importa — incolla qui il backup';
+  $('t_text').value='';
+  $('t_ok').textContent='Importa';
+  $('t_ok').onclick=()=>{
+    try{ S=Object.assign({},DEF,JSON.parse($('t_text').value)); save(); fillSettings(); render(); $('dlgText').close(); }
+    catch(e){ alert('Backup non valido.'); }
+  };
+  $('dlgText').showModal();
+};
+$('t_cancel').onclick=()=>$('dlgText').close();
+
+/* --- avvio --- */
+document.documentElement.dataset.theme = S.theme || 'light';
+{ const p = periodOf(iso(new Date())); curY = p.y; curM = p.m; }
+fillSettings();
+render();
+</script>
+</body>
+</html>

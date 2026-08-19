@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Krono — Turni & Stipendio</title>
+<title>Krono — Shifts &amp; Pay</title>
 <meta name="theme-color" content="#1c5cab">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Krono">
@@ -155,7 +155,7 @@ dialog h3{margin:0 0 12px;font-size:16px}
     
     <h1>Krono</h1>
     <span class="sub" id="ageBadge"></span>
-    <button class="themebtn" id="themeBtn" title="Cambia tema">◐</button>
+    <button class="themebtn" id="themeBtn" title="Switch theme">◐</button>
   </div>
   <div class="mnav">
     <button id="prevM">‹</button>
@@ -163,10 +163,10 @@ dialog h3{margin:0 0 12px;font-size:16px}
     <button id="nextM">›</button>
   </div>
   <div class="tabs" role="tablist">
-    <button role="tab" data-tab="turni" aria-selected="true">Turni</button>
-    <button role="tab" data-tab="paga" aria-selected="false">Stipendio</button>
-    <button role="tab" data-tab="acquisti" aria-selected="false">Acquisti</button>
-    <button role="tab" data-tab="set" aria-selected="false">Impostazioni</button>
+    <button role="tab" data-tab="turni" aria-selected="true">Shifts</button>
+    <button role="tab" data-tab="paga" aria-selected="false">Pay</button>
+    <button role="tab" data-tab="acquisti" aria-selected="false">Wishlist</button>
+    <button role="tab" data-tab="set" aria-selected="false">Settings</button>
   </div>
 </header>
 
@@ -174,14 +174,14 @@ dialog h3{margin:0 0 12px;font-size:16px}
 <section id="tab-turni">
   <div class="card hero">
     <div class="big" id="hTot">—</div>
-    <div class="cap" id="hCap">ore lavorate questo mese</div>
+    <div class="cap" id="hCap">hours worked this month</div>
   </div>
 
   <div class="card">
     <div class="tiles">
-      <div class="tile"><div class="v" id="tShifts">0</div><div class="k">turni</div></div>
-      <div class="tile"><div class="v" id="tSupp">0</div><div class="k">ore con<br>maggiorazione</div></div>
-      <div class="tile"><div class="v" id="tAvg">0</div><div class="k">kr/ora<br>media lorda</div></div>
+      <div class="tile"><div class="v" id="tShifts">0</div><div class="k">shifts</div></div>
+      <div class="tile"><div class="v" id="tSupp">0</div><div class="k">hours with<br>supplement</div></div>
+      <div class="tile"><div class="v" id="tAvg">0</div><div class="k">kr/hour<br>gross avg.</div></div>
     </div>
     <div style="margin-top:14px">
       <div class="bar" id="hBar"></div>
@@ -190,12 +190,12 @@ dialog h3{margin:0 0 12px;font-size:16px}
   </div>
 
   <div class="card">
-    <h2>Turni del mese</h2>
+    <h2>Shifts this period</h2>
     <div id="shiftList"></div>
-    <div style="margin-top:12px"><button class="primary" id="addBtn">+ Aggiungi turno</button></div>
+    <div style="margin-top:12px"><button class="primary" id="addBtn">+ Add shift</button></div>
     <div class="row" style="margin-top:8px">
-      <button class="ghost" id="pasteBtn">Incolla più turni</button>
-      <button class="ghost" id="copyPrev">Copia mese scorso</button>
+      <button class="ghost" id="pasteBtn">Paste several shifts</button>
+      <button class="ghost" id="copyPrev">Copy last period</button>
     </div>
   </div>
 </section>
@@ -204,29 +204,29 @@ dialog h3{margin:0 0 12px;font-size:16px}
 <section id="tab-paga" hidden>
   <div class="card hero">
     <div class="big" id="pNet">—</div>
-    <div class="cap">netto stimato in banca</div>
+    <div class="cap">estimated net in the bank</div>
   </div>
 
   <div class="card">
-    <h2>Come si arriva al netto</h2>
+    <h2>How the net is calculated</h2>
     <table id="payTable"></table>
     <div class="note" id="payNote"></div>
   </div>
 
   <div class="card">
-    <h2>Ti maturano a parte</h2>
+    <h2>Accrued separately</h2>
     <table id="accTable"></table>
-    <div class="note">Queste voci non finiscono nel netto del mese: le ricevi separatamente (fritvalg / feriepenge).</div>
+    <div class="note">These are not part of this month's net pay — you receive them separately (fritvalg / feriepenge).</div>
   </div>
 
   <div class="card">
-    <h2>Netto per mese</h2>
+    <h2>Net pay by period</h2>
     <div class="chartrow" id="trend"></div>
-    <div class="note">Solo i mesi in cui hai inserito dei turni.</div>
+    <div class="note">Only periods where you entered shifts.</div>
   </div>
 
   <div class="card" id="cardFuture">
-    <h2>Quando compi 18 anni</h2>
+    <h2>When you turn 18</h2>
     <div id="futureBox"></div>
   </div>
 </section>
@@ -235,7 +235,7 @@ dialog h3{margin:0 0 12px;font-size:16px}
 <section id="tab-acquisti" hidden>
   <div class="card hero">
     <div class="big" id="aLeft">—</div>
-    <div class="cap" id="aLeftCap">ti resta dopo gli acquisti</div>
+    <div class="cap" id="aLeftCap">left after your wishlist</div>
   </div>
 
   <div class="card">
@@ -248,82 +248,82 @@ dialog h3{margin:0 0 12px;font-size:16px}
   </div>
 
   <div class="card">
-    <h2>Lista acquisti</h2>
+    <h2>Wishlist</h2>
     <div id="wishList"></div>
-    <div style="margin-top:12px"><button class="primary" id="addWish">+ Aggiungi acquisto</button></div>
+    <div style="margin-top:12px"><button class="primary" id="addWish">+ Add item</button></div>
   </div>
 </section>
 
 <!-- ===================== IMPOSTAZIONI ===================== -->
 <section id="tab-set" hidden>
   <div class="card">
-    <h2>Tu</h2>
+    <h2>You</h2>
     <div class="row">
-      <div><label>Data di nascita</label><input type="date" id="s_birth"></div>
-      <div><label>Ore garantite / mese</label><input type="number" step="0.01" id="s_guar"></div>
+      <div><label>Date of birth</label><input type="date" id="s_birth"></div>
+      <div><label>Guaranteed hours / month</label><input type="number" step="0.01" id="s_guar"></div>
     </div>
-    <div style="margin-top:8px"><label>Il mese di paga parte il giorno</label>
+    <div style="margin-top:8px"><label>Pay period starts on day</label>
       <select id="s_period">
-        <option value="1">1 — mese solare (1–31)</option>
-        <option value="21">21 — dal 21 al 20 (il tuo)</option>
+        <option value="1">1 — calendar month (1–31)</option>
+        <option value="21">21 — 21st to 20th (yours)</option>
       </select>
     </div>
-    <div class="note">Se in un mese lavori meno delle ore garantite, l'app paga comunque le ore garantite.<br>Serale = feriali 18–24 · Sabato = 14–24 · Domenica = 06–24 · Notte = 00–06.</div>
+    <div class="note">If you work fewer hours than guaranteed in a period, the app still pays the guaranteed hours.<br>Evening = weekdays 18–24 · Saturday = 14–24 · Sunday = 06–24 · Night = 00–06.</div>
   </div>
 
   <div class="card">
-    <h2>Tariffe — sotto i 18 anni</h2>
+    <h2>Rates — under 18</h2>
     <div class="row">
-      <div><label>Paga oraria</label><input type="number" step="0.01" id="u_base"></div>
-      <div><label>Serale</label><input type="number" step="0.01" id="u_aften"></div>
+      <div><label>Hourly rate</label><input type="number" step="0.01" id="u_base"></div>
+      <div><label>Evening</label><input type="number" step="0.01" id="u_aften"></div>
     </div>
     <div class="row" style="margin-top:8px">
-      <div><label>Sabato</label><input type="number" step="0.01" id="u_lor"></div>
-      <div><label>Domenica</label><input type="number" step="0.01" id="u_son"></div>
-      <div><label>Notte</label><input type="number" step="0.01" id="u_nat"></div>
+      <div><label>Saturday</label><input type="number" step="0.01" id="u_lor"></div>
+      <div><label>Sunday</label><input type="number" step="0.01" id="u_son"></div>
+      <div><label>Night</label><input type="number" step="0.01" id="u_nat"></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>Tariffe — da 18 anni</h2>
+    <h2>Rates — 18 and over</h2>
     <div class="row">
-      <div><label>Paga oraria</label><input type="number" step="0.01" id="o_base"></div>
-      <div><label>Serale</label><input type="number" step="0.01" id="o_aften"></div>
+      <div><label>Hourly rate</label><input type="number" step="0.01" id="o_base"></div>
+      <div><label>Evening</label><input type="number" step="0.01" id="o_aften"></div>
     </div>
     <div class="row" style="margin-top:8px">
-      <div><label>Sabato</label><input type="number" step="0.01" id="o_lor"></div>
-      <div><label>Domenica</label><input type="number" step="0.01" id="o_son"></div>
-      <div><label>Notte</label><input type="number" step="0.01" id="o_nat"></div>
+      <div><label>Saturday</label><input type="number" step="0.01" id="o_lor"></div>
+      <div><label>Sunday</label><input type="number" step="0.01" id="o_son"></div>
+      <div><label>Night</label><input type="number" step="0.01" id="o_nat"></div>
     </div>
-    <div class="note">Serale = feriali 18–24 · Sabato = 14–24 · Domenica = 06–24 · Notte = 00–06.<br>L'app passa da sola a queste tariffe dal giorno del tuo compleanno.</div>
+    <div class="note">Evening = weekdays 18–24 · Saturday = 14–24 · Sunday = 06–24 · Night = 00–06.<br>The app switches to these rates by itself on your birthday.</div>
   </div>
 
   <div class="card">
-    <h2>Extra e trattenute</h2>
+    <h2>Extras and deductions</h2>
     <div class="row">
-      <div><label>Kost / ora</label><input type="number" step="0.01" id="s_kost"></div>
-      <div><label>Kost extra</label><input type="number" step="0.01" id="s_kostx"></div>
+      <div><label>Kost / hour</label><input type="number" step="0.01" id="s_kost"></div>
+      <div><label>Kost per shift</label><input type="number" step="0.01" id="s_kostx"></div>
       <div><label>Madpenge</label><input type="number" step="0.01" id="s_mad"></div>
     </div>
     <div class="row" style="margin-top:8px">
-      <div><label>Fradrag / mese</label><input type="number" step="0.01" id="s_fradrag"></div>
+      <div><label>Fradrag / month</label><input type="number" step="0.01" id="s_fradrag"></div>
       <div><label>Trækprocent %</label><input type="number" step="0.01" id="s_trak"></div>
     </div>
     <div class="row" style="margin-top:8px">
-      <div><label>ATP / mese</label><input type="number" step="0.01" id="s_atp"></div>
+      <div><label>ATP / month</label><input type="number" step="0.01" id="s_atp"></div>
       <div><label>Forening</label><input type="number" step="0.01" id="s_forening"></div>
-      <div><label>Pensione %</label><input type="number" step="0.01" id="s_pension"></div>
+      <div><label>Pension %</label><input type="number" step="0.01" id="s_pension"></div>
     </div>
-    <div class="note">Fradrag e trækprocent li trovi sul tuo skattekort (skat.dk). Se cambiano, aggiornali qui.</div>
+    <div class="note">Fradrag and trækprocent are on your tax card (skat.dk). Update them here if they change.</div>
   </div>
 
   <div class="card">
-    <h2>Dati</h2>
+    <h2>Data</h2>
     <div class="row">
-      <button class="ghost" id="expBtn">Esporta backup</button>
-      <button class="ghost" id="impBtn">Importa backup</button>
+      <button class="ghost" id="expBtn">Export backup</button>
+      <button class="ghost" id="impBtn">Import backup</button>
     </div>
-    <div class="note">I tuoi dati stanno solo su questo dispositivo. Fai un backup ogni tanto: se cancelli i dati del browser, spariscono.</div>
+    <div class="note">Your data lives only on this device. Export a backup now and then — if you clear your browser data, it is gone.</div>
   </div>
 </section>
 
@@ -331,43 +331,43 @@ dialog h3{margin:0 0 12px;font-size:16px}
 
 <!-- ===================== DIALOGS ===================== -->
 <dialog id="dlgShift">
-  <h3 id="dlgShiftTitle">Nuovo turno</h3>
-  <div><label>Data</label><input type="date" id="f_date"></div>
+  <h3 id="dlgShiftTitle">New shift</h3>
+  <div><label>Date</label><input type="date" id="f_date"></div>
   <div class="row" style="margin-top:10px">
-    <div><label>Inizio</label><input type="time" id="f_start" step="300"></div>
-    <div><label>Fine</label><input type="time" id="f_end" step="300"></div>
-    <div><label>Pausa (min)</label><input type="number" id="f_pause" step="5" min="0"></div>
+    <div><label>Start</label><input type="time" id="f_start" step="300"></div>
+    <div><label>End</label><input type="time" id="f_end" step="300"></div>
+    <div><label>Break (min)</label><input type="number" id="f_pause" step="5" min="0"></div>
   </div>
-  <div style="margin-top:10px"><label>Pausa dalle (facoltativo)</label><input type="time" id="f_pstart" step="60"></div>
-  <div class="note" style="margin-top:6px">Se sai a che ora hai fatto la pausa, mettila: le maggiorazioni vengono calcolate esatte.</div>
-  <div style="margin-top:14px"><button class="primary" id="f_save">Salva turno</button></div>
-  <div style="margin-top:8px"><button class="ghost" id="f_cancel" style="width:100%">Annulla</button></div>
+  <div style="margin-top:10px"><label>Break starts at (optional)</label><input type="time" id="f_pstart" step="60"></div>
+  <div class="note" style="margin-top:6px">If you know when your break was, enter it — supplements are then calculated exactly.</div>
+  <div style="margin-top:14px"><button class="primary" id="f_save">Save shift</button></div>
+  <div style="margin-top:8px"><button class="ghost" id="f_cancel" style="width:100%">Cancel</button></div>
 </dialog>
 
 <dialog id="dlgWish">
-  <h3>Nuovo acquisto</h3>
-  <div><label>Cosa vuoi comprare</label><input type="text" id="w_name" placeholder="es. cuffie"></div>
-  <div style="margin-top:10px"><label>Prezzo (kr)</label><input type="number" id="w_price" step="1"></div>
-  <div style="margin-top:14px"><button class="primary" id="w_save">Aggiungi</button></div>
-  <div style="margin-top:8px"><button class="ghost" id="w_cancel" style="width:100%">Annulla</button></div>
+  <h3>New item</h3>
+  <div><label>What do you want to buy</label><input type="text" id="w_name" placeholder="e.g. headphones"></div>
+  <div style="margin-top:10px"><label>Price (kr)</label><input type="number" id="w_price" step="1"></div>
+  <div style="margin-top:14px"><button class="primary" id="w_save">Add</button></div>
+  <div style="margin-top:8px"><button class="ghost" id="w_cancel" style="width:100%">Cancel</button></div>
 </dialog>
 
 <dialog id="dlgPaste">
-  <h3>Incolla più turni</h3>
-  <div class="note" style="margin:0 0 8px">Una riga per turno:<br>
-  <code>data · inizio · fine · minuti di pausa · ora della pausa</code><br>
-  Esempi: <code>2026-08-18 18:00 20:30</code> · <code>18/08 13:30 17:21 30 16:00</code><br>
-  I turni già presenti vengono saltati, puoi incollare senza paura di duplicare.</div>
+  <h3>Paste several shifts</h3>
+  <div class="note" style="margin:0 0 8px">One line per shift:<br>
+  <code>date · start · end · break minutes · break start</code><br>
+  Examples: <code>2026-08-18 18:00 20:30</code> · <code>18/08 13:30 17:21 30 16:00</code><br>
+  Shifts already saved are skipped, so you can paste without creating duplicates.</div>
   <textarea id="p_text" rows="7" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);border-radius:9px;padding:10px;font-family:ui-monospace,monospace;font-size:13px"></textarea>
-  <div style="margin-top:14px"><button class="primary" id="p_save">Importa</button></div>
-  <div style="margin-top:8px"><button class="ghost" id="p_cancel" style="width:100%">Annulla</button></div>
+  <div style="margin-top:14px"><button class="primary" id="p_save">Import</button></div>
+  <div style="margin-top:8px"><button class="ghost" id="p_cancel" style="width:100%">Cancel</button></div>
 </dialog>
 
 <dialog id="dlgText">
   <h3 id="t_title">Backup</h3>
   <textarea id="t_text" rows="9" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);border-radius:9px;padding:10px;font-family:ui-monospace,monospace;font-size:11px"></textarea>
   <div style="margin-top:14px"><button class="primary" id="t_ok">OK</button></div>
-  <div style="margin-top:8px"><button class="ghost" id="t_cancel" style="width:100%">Chiudi</button></div>
+  <div style="margin-top:8px"><button class="ghost" id="t_cancel" style="width:100%">Close</button></div>
 </dialog>
 
 <script>
@@ -398,8 +398,8 @@ let curY = cur.getFullYear(), curM = cur.getMonth();
 /* ============================================================
    UTILI
    ============================================================ */
-const MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-const GG = ['dom','lun','mar','mer','gio','ven','sab'];
+const MESI = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const GG = ['sun','mon','tue','wed','thu','fri','sat'];
 const kr = n => n.toLocaleString('da-DK',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' kr';
 const kr0 = n => Math.round(n).toLocaleString('da-DK') + ' kr';
 const h = n => n.toFixed(2).replace('.',',') + ' h';
@@ -581,7 +581,7 @@ function render(){
   $('mLabel').innerHTML = MESI[curM]+' '+curY +
     ((+S.periodStart||1)>1 ? `<div style="font-size:10.5px;color:var(--muted);font-weight:500;letter-spacing:0">${short(R.from)} – ${short(R.to)}</div>` : '');
   const a = ageOn(new Date());
-  $('ageBadge').textContent = a + ' anni';
+  $('ageBadge').textContent = a + ' years old';
   const M = calcMonth(curY,curM);
   renderTurni(M); renderPaga(M); renderAcquisti(M);
 }
@@ -592,15 +592,15 @@ function renderTurni(M){
   $('tShifts').textContent = M.list.length;
   $('tSupp').textContent = supp.toFixed(1).replace('.',',');
   $('tAvg').textContent = M.A.total>0 ? (M.gross/M.A.total).toFixed(0) : '—';
-  $('hCap').textContent = M.list.length ? 'ore lavorate · '+kr0(M.gross)+' lordi' : 'nessun turno questo mese';
+  $('hCap').textContent = M.list.length ? 'hours worked · '+kr0(M.gross)+' gross' : 'no shifts in this period';
 
   // barra composizione ore
   const segs = [
-    {k:'Normale', v:M.A.plain, c:'var(--s1)'},
-    {k:'Serale',  v:M.A.aften, c:'var(--s2)'},
-    {k:'Sabato',  v:M.A.lor,   c:'var(--s3)'},
-    {k:'Domenica',v:M.A.son,   c:'var(--s4)'},
-    {k:'Notte',   v:M.A.nat,   c:'var(--s5)'}
+    {k:'Regular',  v:M.A.plain, c:'var(--s1)'},
+    {k:'Evening',  v:M.A.aften, c:'var(--s2)'},
+    {k:'Saturday', v:M.A.lor,   c:'var(--s3)'},
+    {k:'Sunday',   v:M.A.son,   c:'var(--s4)'},
+    {k:'Night',    v:M.A.nat,   c:'var(--s5)'}
   ].filter(s=>s.v>0.001);
   const tot = segs.reduce((a,b)=>a+b.v,0) || 1;
   $('hBar').innerHTML = segs.map(s=>
@@ -609,19 +609,19 @@ function renderTurni(M){
     `<span><i class="chip" style="background:${s.c}"></i>${s.k} · ${h(s.v)}</span>`).join('');
 
   const L = $('shiftList');
-  if(!M.list.length){ L.innerHTML = '<div class="empty">Nessun turno.<br>Aggiungine uno qui sotto.</div>'; return; }
+  if(!M.list.length){ L.innerHTML = '<div class="empty">No shifts yet.<br>Add one below.</div>'; return; }
   L.innerHTML = M.list.map(s=>{
     const r=calcShift(s), d=parseISO(s.date);
     const tags=[];
-    if(r.aften>0.01) tags.push('serale');
-    if(r.lor>0.01)   tags.push('sabato');
-    if(r.son>0.01)   tags.push('domenica');
-    if(r.nat>0.01)   tags.push('notte');
+    if(r.aften>0.01) tags.push('evening');
+    if(r.lor>0.01)   tags.push('saturday');
+    if(r.son>0.01)   tags.push('sunday');
+    if(r.nat>0.01)   tags.push('night');
     if(r.holName)    tags.push('🎉 '+r.holName);
     return `<div class="shift">
       <div class="d"><div class="dd">${d.getDate()}</div><div class="dw">${GG[d.getDay()]}</div></div>
       <div class="m">
-        <div class="t">${s.start}–${s.end}${s.pause?` · pausa ${s.pause}′${s.pstart?' ('+s.pstart+')':''}`:''}</div>
+        <div class="t">${s.start}–${s.end}${s.pause?` · break ${s.pause}′${s.pstart?' ('+s.pstart+')':''}`:''}</div>
         <div class="s">${h(r.total)}${tags.length?' · '+tags.join(', '):''}</div>
       </div>
       <div class="a"><div class="v">${kr0(r.gross)}</div></div>
@@ -638,27 +638,27 @@ function renderTurni(M){
 function renderPaga(M){
   $('pNet').textContent = M.list.length ? kr0(M.net) : '—';
   const rw = (k,v,cls) => `<tr class="${cls||''}"><td>${k}</td><td class="n">${v}</td></tr>`;
-  let t = '<tr><th>Voce</th><th class="n">Importo</th></tr>';
+  let t = '<tr><th>Item</th><th class="n">Amount</th></tr>';
   const dec = n => n.toFixed(2).replace('.',',');
-  t += rw(`Ore base · ${h(M.A.total)} × ${dec(M.rates.base)}`, kr(M.payBase));
-  if(M.guarBonus>0.01) t += rw(`Integrazione ore garantite (${S.guaranteed} h)`, kr(M.guarBonus));
+  t += rw(`Base hours · ${h(M.A.total)} × ${dec(M.rates.base)}`, kr(M.payBase));
+  if(M.guarBonus>0.01) t += rw(`Guaranteed-hours top-up (${S.guaranteed} h)`, kr(M.guarBonus));
   if(M.payAften>0.01)  t += rw(`Aftentillæg · ${h(M.A.aften)}`, kr(M.payAften));
   if(M.payLor>0.01)    t += rw(`Lørdagstillæg · ${h(M.A.lor)}`, kr(M.payLor));
   if(M.paySon>0.01)    t += rw(`Søndagstillæg · ${h(M.A.son)}`, kr(M.paySon));
   if(M.payNat>0.01)    t += rw(`Nattillæg · ${h(M.A.nat)}`, kr(M.payNat));
   if(M.payHol>0.01)    t += rw(`Helligdagstillæg · ${h(M.A.hol)}`, kr(M.payHol));
   if(M.kost>0.01)      t += rw(`Kosttillæg · ${h(M.A.total)} × ${dec(S.kost)}`, kr(M.kost));
-  if(M.kostx>0.01)     t += rw(`Særligt kosttillæg · ${M.list.length} turni`, kr(M.kostx));
-  t += rw('<b>Lordo</b>', '<b>'+kr(M.gross)+'</b>', 'tot');
+  if(M.kostx>0.01)     t += rw(`Særligt kosttillæg · ${M.list.length} shifts`, kr(M.kostx));
+  t += rw('<b>Gross</b>', '<b>'+kr(M.gross)+'</b>', 'tot');
   t += rw('ATP', '−'+kr(S.atp), 'sep');
-  if(M.pension>0.01) t += rw(`Pensione (${S.pension}%)`, '−'+kr(M.pension));
+  if(M.pension>0.01) t += rw(`Pension (${S.pension}%)`, '−'+kr(M.pension));
   t += rw('AM-bidrag · 8%', '−'+kr(M.amb));
-  t += rw(`Tasse · ${S.trak}% su ${kr(Math.max(0,M.taxable))}`, '−'+kr(M.tax));
+  t += rw(`Tax · ${S.trak}% of ${kr(Math.max(0,M.taxable))}`, '−'+kr(M.tax));
   t += rw(`Madpenge · ${M.list.length} × ${dec(S.mad)}`, '−'+kr(M.mad));
   t += rw('Personaleforening', '−'+kr(S.forening));
-  t += rw('<b>Netto in banca</b>', '<b>'+kr(M.net)+'</b>', 'tot');
+  t += rw('<b>Net in the bank</b>', '<b>'+kr(M.net)+'</b>', 'tot');
   $('payTable').innerHTML = t;
-  $('payNote').textContent = `Fradrag applicato: ${kr(S.fradrag)}. AM-bidrag e tasse sono arrotondati per difetto a corone intere, come sulla busta paga vera.`;
+  $('payNote').textContent = `Fradrag applied: ${kr(S.fradrag)}. AM-bidrag and tax are rounded down to whole kroner, exactly like the real payslip.`;
 
   $('accTable').innerHTML =
     rw('Særligt løntillæg · 9,85%', kr(M.fritvalg)) +
@@ -668,7 +668,7 @@ function renderPaga(M){
   const byMonth = {};
   S.shifts.forEach(s=>{ const d=parseISO(s.date); byMonth[d.getFullYear()+'-'+pad(d.getMonth()+1)] = true; });
   const keys = Object.keys(byMonth).sort().slice(-8);
-  if(keys.length<2){ $('trend').innerHTML = '<div class="empty" style="flex:1">Serve almeno un secondo mese<br>per vedere il confronto.</div>'; }
+  if(keys.length<2){ $('trend').innerHTML = '<div class="empty" style="flex:1">Add a second period<br>to see the comparison.</div>'; }
   else {
     const vals = keys.map(k=>{ const [y,m]=k.split('-').map(Number); return {k, n:calcMonth(y,m-1).net, y, m}; });
     const max = Math.max(...vals.map(v=>v.n), 1);
@@ -690,7 +690,7 @@ function renderPaga(M){
   else {
     $('cardFuture').hidden = false;
     const days = Math.ceil((eighteen-new Date())/864e5);
-    if(!M.list.length){ box.innerHTML = `<div class="note">Compi 18 anni fra ${days} giorni. Inserisci dei turni per vedere quanto cambierebbe.</div>`; }
+    if(!M.list.length){ box.innerHTML = `<div class="note">You turn 18 in ${days} days. Add some shifts to see what would change.</div>`; }
     else {
       const bak = S.birth;
       S.birth = iso(new Date(curY-20, b.getMonth(), b.getDate())); // simula "già 18enne"
@@ -699,12 +699,12 @@ function renderPaga(M){
       const diff = F.net - M.net;
       box.innerHTML = `
         <div class="tiles">
-          <div class="tile"><div class="v">${kr0(M.net)}</div><div class="k">netto oggi</div></div>
-          <div class="tile"><div class="v" style="color:var(--good)">${kr0(F.net)}</div><div class="k">netto da 18enne</div></div>
-          <div class="tile"><div class="v" style="color:var(--good)">+${kr0(diff)}</div><div class="k">differenza</div></div>
+          <div class="tile"><div class="v">${kr0(M.net)}</div><div class="k">net today</div></div>
+          <div class="tile"><div class="v" style="color:var(--good)">${kr0(F.net)}</div><div class="k">net at 18</div></div>
+          <div class="tile"><div class="v" style="color:var(--good)">+${kr0(diff)}</div><div class="k">difference</div></div>
         </div>
-        <div class="alert">Compi 18 anni fra <b>${days} giorni</b>. Con le stesse ore di questo mese guadagneresti
-        <b>${kr0(diff)}</b> in più al mese. Da quel momento potrebbe partire anche la pensione: attivala nelle impostazioni quando la vedi in busta paga.</div>`;
+        <div class="alert">You turn 18 in <b>${days} days</b>. With the same hours as this period you would earn
+        <b>${kr0(diff)}</b> more per month. Pension may start then too — switch it on in Settings once you see it on your payslip.</div>`;
     }
   }
 }
@@ -715,28 +715,28 @@ function renderAcquisti(M){
   const left = M.net - spent;
   $('aLeft').textContent = M.list.length ? kr0(left) : '—';
   $('aLeft').style.color = left<0 ? 'var(--critical)' : 'var(--ink)';
-  $('aSpent').textContent = 'acquisti ' + kr0(spent);
-  $('aNet').textContent = 'netto ' + kr0(M.net);
+  $('aSpent').textContent = 'wishlist ' + kr0(spent);
+  $('aNet').textContent = 'net ' + kr0(M.net);
   const pct = M.net>0 ? Math.min(100, spent/M.net*100) : 0;
   const p = $('aProg'); p.classList.toggle('over', spent>M.net);
   p.querySelector('i').style.width = pct.toFixed(1)+'%';
 
-  if(!M.list.length) $('aNote').textContent = 'Aggiungi dei turni per vedere quanto ti resta.';
-  else if(left>=0)   $('aNote').textContent = `Puoi permetterti tutta la lista e ti restano ${kr0(left)}.`;
+  if(!M.list.length) $('aNote').textContent = 'Add some shifts to see what you have left.';
+  else if(left>=0)   $('aNote').textContent = `You can afford the whole list and still have ${kr0(left)} left.`;
   else {
     const mesi = M.net>0 ? Math.ceil(spent/M.net) : 0;
-    $('aNote').textContent = `Ti mancano ${kr0(-left)}. Con uno stipendio come questo servono circa ${mesi} mesi per tutta la lista.`;
+    $('aNote').textContent = `You are ${kr0(-left)} short. On a month like this it takes about ${mesi} months for the whole list.`;
   }
 
   const L=$('wishList');
-  if(!S.wishes.length){ L.innerHTML='<div class="empty">Niente in lista.</div>'; return; }
+  if(!S.wishes.length){ L.innerHTML='<div class="empty">Nothing on the list.</div>'; return; }
   L.innerHTML = S.wishes.map(w=>{
     const q = M.net>0 ? (w.price/M.net*100) : 0;
     const hrs = M.A.total>0 ? w.price/(M.net/M.A.total) : 0;
     return `<div class="wish ${w.done?'done':''}">
       <input type="checkbox" data-chk="${w.id}" ${w.done?'checked':''} style="width:20px;height:20px;flex:none">
       <div class="nm"><div class="t">${w.name}</div>
-        <div class="s">${q?q.toFixed(0)+'% dello stipendio':''}${hrs?' · ≈ '+hrs.toFixed(0)+' ore di lavoro':''}</div></div>
+        <div class="s">${q?q.toFixed(0)+'% of your pay':''}${hrs?' · ≈ '+hrs.toFixed(0)+' hours of work':''}</div></div>
       <div style="font-weight:650;font-variant-numeric:tabular-nums">${kr0(w.price)}</div>
       <button class="x" data-wdel="${w.id}">×</button>
     </div>`;
@@ -799,8 +799,8 @@ $('f_save').onclick=()=>{
 $('copyPrev').onclick=()=>{
   let py=curY, pm=curM-1; if(pm<0){pm=11;py--;}
   const prev=monthShifts(py,pm);
-  if(!prev.length){ alert('Il mese scorso è vuoto.'); return; }
-  if(!confirm(`Copio ${prev.length} turni da ${MESI[pm]} a ${MESI[curM]}?`)) return;
+  if(!prev.length){ alert('The previous period is empty.'); return; }
+  if(!confirm(`Copy ${prev.length} shifts from ${MESI[pm]} to ${MESI[curM]}?`)) return;
   const dim=new Date(curY,curM+1,0).getDate();
   prev.forEach(s=>{
     const day=Math.min(parseISO(s.date).getDate(), dim);
@@ -841,9 +841,9 @@ $('p_save').onclick=()=>{
   });
   save(); $('dlgPaste').close(); render();
   const msg = [];
-  if(n) msg.push(n+' turni aggiunti');
-  if(dup) msg.push(dup+' già presenti, saltati');
-  if(!n && !dup) alert('Non sono riuscito a leggere nessun turno. Controlla il formato.');
+  if(n) msg.push(n+' shifts added');
+  if(dup) msg.push(dup+' already there, skipped');
+  if(!n && !dup) alert('Could not read any shift. Check the format.');
   else alert(msg.join(' · '));
 };
 
@@ -880,19 +880,19 @@ Object.keys(RATEF).forEach(id=>{
 });
 
 $('expBtn').onclick=()=>{
-  $('t_title').textContent='Backup — copia questo testo e salvalo';
+  $('t_title').textContent='Backup — copy this text and keep it safe';
   $('t_text').value=JSON.stringify(S);
-  $('t_ok').textContent='Copia';
+  $('t_ok').textContent='Copy';
   $('t_ok').onclick=()=>{ $('t_text').select(); document.execCommand('copy'); $('dlgText').close(); };
   $('dlgText').showModal();
 };
 $('impBtn').onclick=()=>{
-  $('t_title').textContent='Importa — incolla qui il backup';
+  $('t_title').textContent='Import — paste your backup here';
   $('t_text').value='';
-  $('t_ok').textContent='Importa';
+  $('t_ok').textContent='Import';
   $('t_ok').onclick=()=>{
     try{ S=Object.assign({},DEF,JSON.parse($('t_text').value)); save(); fillSettings(); render(); $('dlgText').close(); }
-    catch(e){ alert('Backup non valido.'); }
+    catch(e){ alert('Invalid backup.'); }
   };
   $('dlgText').showModal();
 };

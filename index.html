@@ -143,6 +143,12 @@ dialog h3{margin:0 0 12px;font-size:16px}
 .prog{height:9px;border-radius:5px;background:var(--surface-2);overflow:hidden;margin:8px 0 4px}
 .prog i{display:block;height:100%;background:var(--accent);border-radius:4px}
 .prog.over i{background:var(--critical)}
+.seg{display:flex;gap:4px;background:var(--surface-2);padding:3px;border-radius:10px}
+.seg button{flex:1;background:transparent;border:0;color:var(--ink-2);padding:9px 6px;
+  border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.fixedtag{font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--accent);
+  background:var(--surface-2);padding:2px 6px;border-radius:5px;margin-left:6px}
 .themebtn{background:var(--hfill);border:0;color:var(--hink);font-size:14px;cursor:pointer;
   width:28px;height:28px;border-radius:8px;line-height:1}
 </style>
@@ -165,7 +171,7 @@ dialog h3{margin:0 0 12px;font-size:16px}
   <div class="tabs" role="tablist">
     <button role="tab" data-tab="turni" aria-selected="true">Shifts</button>
     <button role="tab" data-tab="paga" aria-selected="false">Pay</button>
-    <button role="tab" data-tab="acquisti" aria-selected="false">Wishlist</button>
+    <button role="tab" data-tab="acquisti" aria-selected="false">Budget</button>
     <button role="tab" data-tab="set" aria-selected="false">Settings</button>
   </div>
 </header>
@@ -235,7 +241,7 @@ dialog h3{margin:0 0 12px;font-size:16px}
 <section id="tab-acquisti" hidden>
   <div class="card hero">
     <div class="big" id="aLeft">—</div>
-    <div class="cap" id="aLeftCap">left after your wishlist</div>
+    <div class="cap" id="aLeftCap">left after everything planned</div>
   </div>
 
   <div class="card">
@@ -248,9 +254,19 @@ dialog h3{margin:0 0 12px;font-size:16px}
   </div>
 
   <div class="card">
-    <h2>Wishlist</h2>
+    <h2>Every month</h2>
+    <div id="fixedList"></div>
+    <div class="note">Fixed costs — subscriptions, transport, phone. They are subtracted from every pay period automatically.</div>
+  </div>
+
+  <div class="card">
+    <h2>This period only</h2>
     <div id="wishList"></div>
-    <div style="margin-top:12px"><button class="primary" id="addWish">+ Add item</button></div>
+    <div class="note">One-off purchases. Tick one once you have bought it and it stops counting.</div>
+  </div>
+
+  <div class="card">
+    <button class="primary" id="addWish">+ Add item</button>
   </div>
 </section>
 
@@ -346,8 +362,14 @@ dialog h3{margin:0 0 12px;font-size:16px}
 
 <dialog id="dlgWish">
   <h3>New item</h3>
-  <div><label>What do you want to buy</label><input type="text" id="w_name" placeholder="e.g. headphones"></div>
+  <div><label>What is it</label><input type="text" id="w_name" placeholder="e.g. headphones, Spotify, bus card"></div>
   <div style="margin-top:10px"><label>Price (kr)</label><input type="number" id="w_price" step="1"></div>
+  <div style="margin-top:12px"><label>How often</label>
+    <div class="seg" id="w_type">
+      <button type="button" data-v="once" class="on">Just this period</button>
+      <button type="button" data-v="fixed">Every month</button>
+    </div>
+  </div>
   <div style="margin-top:14px"><button class="primary" id="w_save">Add</button></div>
   <div style="margin-top:8px"><button class="ghost" id="w_cancel" style="width:100%">Cancel</button></div>
 </dialog>
@@ -387,8 +409,12 @@ const DEF = {
 };
 let S = load();
 function load(){
-  try { return Object.assign({}, DEF, JSON.parse(localStorage.getItem(KEY) || '{}')); }
-  catch(e){ return Object.assign({}, DEF); }
+  let o;
+  try { o = Object.assign({}, DEF, JSON.parse(localStorage.getItem(KEY) || '{}')); }
+  catch(e){ o = Object.assign({}, DEF); }
+  // gli acquisti salvati prima di questa versione diventano "una tantum" del periodo corrente
+  if(Array.isArray(o.wishes)) o.wishes.forEach(w=>{ if(!w.type) w.type='once'; });
+  return o;
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
@@ -709,42 +735,58 @@ function renderPaga(M){
   }
 }
 
+function wishRow(w, showTag){
+  return `<div class="wish ${w.done?'done':''}">
+      ${w.type==='once' ? `<input type="checkbox" data-chk="${w.id}" ${w.done?'checked':''} style="width:20px;height:20px;flex:none">`
+                        : `<span style="width:20px;flex:none;text-align:center;color:var(--accent);font-size:15px">↻</span>`}
+      <div class="nm"><div class="t">${w.name}${showTag?'<span class="fixedtag">FIXED</span>':''}</div>
+        <div class="s">${w.sub||''}</div></div>
+      <div style="font-weight:650;font-variant-numeric:tabular-nums">${kr0(w.price)}</div>
+      <button class="x" data-wdel="${w.id}">×</button>
+    </div>`;
+}
 function renderAcquisti(M){
-  const open = S.wishes.filter(w=>!w.done);
-  const spent = open.reduce((a,w)=>a+(+w.price||0),0);
+  const fixed = S.wishes.filter(w=>w.type==='fixed');
+  const once  = S.wishes.filter(w=>w.type!=='fixed' && (w.py===undefined || (w.py===curY && w.pm===curM)));
+  const spentFixed = fixed.reduce((a,w)=>a+(+w.price||0),0);
+  const spentOnce  = once.filter(w=>!w.done).reduce((a,w)=>a+(+w.price||0),0);
+  const spent = spentFixed + spentOnce;
   const left = M.net - spent;
   $('aLeft').textContent = M.list.length ? kr0(left) : '—';
-  $('aLeft').style.color = left<0 ? 'var(--critical)' : 'var(--ink)';
-  $('aSpent').textContent = 'wishlist ' + kr0(spent);
+  $('aLeft').style.color = left<0 ? 'var(--critical)' : 'var(--accent)';
+  $('aSpent').textContent = 'planned ' + kr0(spent);
   $('aNet').textContent = 'net ' + kr0(M.net);
   const pct = M.net>0 ? Math.min(100, spent/M.net*100) : 0;
   const p = $('aProg'); p.classList.toggle('over', spent>M.net);
   p.querySelector('i').style.width = pct.toFixed(1)+'%';
 
-  if(!M.list.length) $('aNote').textContent = 'Add some shifts to see what you have left.';
-  else if(left>=0)   $('aNote').textContent = `You can afford the whole list and still have ${kr0(left)} left.`;
+  if(!M.list.length)      $('aNote').textContent = 'Add some shifts to see what you have left.';
+  else if(!S.wishes.length) $('aNote').textContent = 'Nothing planned yet — the whole net pay is yours.';
+  else if(left>=0)        $('aNote').textContent =
+      `${kr0(spentFixed)} fixed + ${kr0(spentOnce)} one-off. You can cover it all and still have ${kr0(left)} left.`;
   else {
-    const mesi = M.net>0 ? Math.ceil(spent/M.net) : 0;
-    $('aNote').textContent = `You are ${kr0(-left)} short. On a month like this it takes about ${mesi} months for the whole list.`;
+    const mesi = M.net>spentFixed ? Math.ceil(spentOnce/(M.net-spentFixed)) : 0;
+    $('aNote').textContent = `${kr0(spentFixed)} fixed + ${kr0(spentOnce)} one-off — you are ${kr0(-left)} short.`
+      + (mesi ? ` After the fixed costs it takes about ${mesi} months to cover the rest.` : '');
   }
 
-  const L=$('wishList');
-  if(!S.wishes.length){ L.innerHTML='<div class="empty">Nothing on the list.</div>'; return; }
-  L.innerHTML = S.wishes.map(w=>{
+  const label = w => {
     const q = M.net>0 ? (w.price/M.net*100) : 0;
     const hrs = M.A.total>0 ? w.price/(M.net/M.A.total) : 0;
-    return `<div class="wish ${w.done?'done':''}">
-      <input type="checkbox" data-chk="${w.id}" ${w.done?'checked':''} style="width:20px;height:20px;flex:none">
-      <div class="nm"><div class="t">${w.name}</div>
-        <div class="s">${q?q.toFixed(0)+'% of your pay':''}${hrs?' · ≈ '+hrs.toFixed(0)+' hours of work':''}</div></div>
-      <div style="font-weight:650;font-variant-numeric:tabular-nums">${kr0(w.price)}</div>
-      <button class="x" data-wdel="${w.id}">×</button>
-    </div>`;
-  }).join('');
-  L.querySelectorAll('[data-chk]').forEach(c=>c.onchange=()=>{
+    return (q?q.toFixed(0)+'% of your pay':'') + (hrs?' · ≈ '+hrs.toFixed(0)+' hours of work':'');
+  };
+  const F=$('fixedList'), L=$('wishList');
+  F.innerHTML = fixed.length
+    ? fixed.map(w=>wishRow(Object.assign({},w,{sub:label(w)}), true)).join('')
+    : '<div class="empty">No fixed costs yet.</div>';
+  L.innerHTML = once.length
+    ? once.map(w=>wishRow(Object.assign({},w,{sub:label(w)}), false)).join('')
+    : '<div class="empty">Nothing planned for this period.</div>';
+
+  document.querySelectorAll('[data-chk]').forEach(c=>c.onchange=()=>{
     const w=S.wishes.find(x=>x.id===c.dataset.chk); w.done=c.checked; save(); render();
   });
-  L.querySelectorAll('[data-wdel]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('[data-wdel]').forEach(b=>b.onclick=()=>{
     S.wishes = S.wishes.filter(x=>x.id!==b.dataset.wdel); save(); render();
   });
 }
@@ -847,12 +889,23 @@ $('p_save').onclick=()=>{
   else alert(msg.join(' · '));
 };
 
-$('addWish').onclick=()=>{ $('w_name').value=''; $('w_price').value=''; $('dlgWish').showModal(); };
+let wType='once';
+$('w_type').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  wType=b.dataset.v;
+  $('w_type').querySelectorAll('button').forEach(x=>x.classList.toggle('on', x===b));
+});
+$('addWish').onclick=()=>{
+  $('w_name').value=''; $('w_price').value='';
+  wType='once'; $('w_type').querySelectorAll('button').forEach(x=>x.classList.toggle('on', x.dataset.v==='once'));
+  $('dlgWish').showModal();
+};
 $('w_cancel').onclick=()=>$('dlgWish').close();
 $('w_save').onclick=()=>{
   const n=$('w_name').value.trim(), p=+$('w_price').value;
   if(!n||!p) return;
-  S.wishes.push({id:uid(), name:n, price:p, done:false});
+  const o={id:uid(), name:n, price:p, done:false, type:wType};
+  if(wType==='once'){ o.py=curY; o.pm=curM; }   // legato al periodo in cui lo aggiungi
+  S.wishes.push(o);
   save(); $('dlgWish').close(); render();
 };
 
@@ -900,7 +953,12 @@ $('t_cancel').onclick=()=>$('dlgText').close();
 
 /* --- avvio --- */
 document.documentElement.dataset.theme = S.theme || 'light';
-{ const p = periodOf(iso(new Date())); curY = p.y; curM = p.m; }
+{ const p = periodOf(iso(new Date())); curY = p.y; curM = p.m;
+  // se il periodo appena iniziato è ancora vuoto, apro quello precedente
+  if(!monthShifts(curY,curM).length){
+    let py=curY, pm=curM-1; if(pm<0){pm=11;py--;}
+    if(monthShifts(py,pm).length){ curY=py; curM=pm; }
+  } }
 fillSettings();
 render();
 </script>

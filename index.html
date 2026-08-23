@@ -140,6 +140,9 @@ dialog h3{margin:0 0 12px;font-size:16px}
 .wish .nm .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wish>div:nth-last-child(2){flex:none}
 .wish.done .nm .t{text-decoration:line-through;color:var(--muted)}
+#gTable td,#gTable th{padding-left:9px}
+#gTable td:first-child,#gTable th:first-child{padding-left:0}
+#gTable td{font-size:12.5px}
 .prog{height:9px;border-radius:5px;background:var(--surface-2);overflow:hidden;margin:8px 0 4px}
 .prog i{display:block;height:100%;background:var(--accent);border-radius:4px}
 .prog.over i{background:var(--critical)}
@@ -172,6 +175,7 @@ dialog h3{margin:0 0 12px;font-size:16px}
     <button role="tab" data-tab="turni" aria-selected="true">Shifts</button>
     <button role="tab" data-tab="paga" aria-selected="false">Pay</button>
     <button role="tab" data-tab="acquisti" aria-selected="false">Budget</button>
+    <button role="tab" data-tab="goal" aria-selected="false">Goal</button>
     <button role="tab" data-tab="set" aria-selected="false">Settings</button>
   </div>
 </header>
@@ -267,6 +271,56 @@ dialog h3{margin:0 0 12px;font-size:16px}
 
   <div class="card">
     <button class="primary" id="addWish">+ Add item</button>
+  </div>
+</section>
+
+
+<!-- ===================== GOAL ===================== -->
+<section id="tab-goal" hidden>
+  <div class="card hero">
+    <div class="big" id="gSaved">—</div>
+    <div class="cap" id="gCap">saved so far</div>
+    <div class="prog" id="gProg" style="margin-top:16px"><i style="width:0%"></i></div>
+    <div class="row" style="font-size:12px;color:var(--muted)">
+      <span id="gPct">—</span>
+      <span style="text-align:right" id="gTarget">—</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tiles">
+      <div class="tile"><div class="v" id="gLeft">—</div><div class="k">still<br>to save</div></div>
+      <div class="tile"><div class="v" id="gPays">—</div><div class="k">pay days<br>left</div></div>
+      <div class="tile"><div class="v" id="gNext">—</div><div class="k">next pay day<br>set aside</div></div>
+    </div>
+    <div id="gStatus"></div>
+  </div>
+
+  <div class="card">
+    <h2>Month by month</h2>
+    <div style="overflow-x:auto"><table id="gTable"></table></div>
+    <div class="note" id="gNote"></div>
+  </div>
+
+  <div class="card">
+    <h2>What you actually put away</h2>
+    <div id="gDeps"></div>
+    <div style="margin-top:12px"><button class="primary" id="gAdd">+ Record a deposit</button></div>
+    <div class="note">Every time you move money aside, add it here. The plan for the months that are left is recalculated straight away.</div>
+  </div>
+
+  <div class="card">
+    <h2>Goal settings</h2>
+    <div><label>What you are saving for</label><input type="text" id="g_name"></div>
+    <div class="row" style="margin-top:8px">
+      <div><label>Amount (kr)</label><input type="number" step="1" id="g_target"></div>
+      <div><label>By</label><input type="date" id="g_deadline"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>Untouchable buffer / month (kr)</label><input type="number" step="1" id="g_buffer"></div>
+      <div><label>Max % of what is free</label><input type="number" step="1" id="g_maxpct"></div>
+    </div>
+    <div class="note">Fixed costs come from the Budget tab. The plan never takes more than the percentage above of what is left after them, and always leaves the buffer untouched.</div>
   </div>
 </section>
 
@@ -385,6 +439,17 @@ dialog h3{margin:0 0 12px;font-size:16px}
   <div style="margin-top:8px"><button class="ghost" id="p_cancel" style="width:100%">Cancel</button></div>
 </dialog>
 
+<dialog id="dlgDep">
+  <h3>Record a deposit</h3>
+  <div class="row">
+    <div><label>Amount (kr)</label><input type="number" step="1" id="d_amt"></div>
+    <div><label>Date</label><input type="date" id="d_date"></div>
+  </div>
+  <div style="margin-top:10px"><label>Note</label><input type="text" id="d_note" placeholder="e.g. August pay"></div>
+  <div style="margin-top:14px"><button class="primary" id="d_save">Add</button></div>
+  <div style="margin-top:8px"><button class="ghost" id="d_cancel" style="width:100%">Cancel</button></div>
+</dialog>
+
 <dialog id="dlgText">
   <h3 id="t_title">Backup</h3>
   <textarea id="t_text" rows="9" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);border-radius:9px;padding:10px;font-family:ui-monospace,monospace;font-size:11px"></textarea>
@@ -405,7 +470,9 @@ const DEF = {
   over:  { base:148.49, aften:23.03, lor:23.03, son:31.46, nat:31.46 },
   kost: 1.00, kostx: 6.00, mad: 15.00,
   fradrag: 0, trak: 0, atp: 66, forening: 50, pension: 0,
-  shifts: [], wishes: [], theme: 'light'
+  shifts: [], wishes: [], theme: 'light',
+  goal: {name:'', target:0, deadline:'',
+         buffer:1000, maxpct:60, created:'', deposits:[]}
 };
 let S = load();
 function load(){
@@ -414,6 +481,9 @@ function load(){
   catch(e){ o = Object.assign({}, DEF); }
   // gli acquisti salvati prima di questa versione diventano "una tantum" del periodo corrente
   if(Array.isArray(o.wishes)) o.wishes.forEach(w=>{ if(!w.type) w.type='once'; });
+  // piano di risparmio: valori di partenza se non c'erano
+  o.goal = Object.assign({}, DEF.goal, o.goal||{});
+  if(!Array.isArray(o.goal.deposits)) o.goal.deposits=[];
   return o;
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -609,7 +679,7 @@ function render(){
   const a = ageOn(new Date());
   $('ageBadge').textContent = a + ' years old';
   const M = calcMonth(curY,curM);
-  renderTurni(M); renderPaga(M); renderAcquisti(M);
+  renderTurni(M); renderPaga(M); renderAcquisti(M); renderGoal();
 }
 
 function renderTurni(M){
@@ -796,7 +866,7 @@ function renderAcquisti(M){
    ============================================================ */
 document.querySelectorAll('[role=tab]').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('[role=tab]').forEach(x=>x.setAttribute('aria-selected', x===b));
-  ['turni','paga','acquisti','set'].forEach(t=> $('tab-'+t).hidden = (t!==b.dataset.tab));
+  ['turni','paga','acquisti','goal','set'].forEach(t=> $('tab-'+t).hidden = (t!==b.dataset.tab));
   window.scrollTo(0,0);
 });
 $('prevM').onclick=()=>{ curM--; if(curM<0){curM=11;curY--;} render(); };
@@ -951,6 +1021,206 @@ $('impBtn').onclick=()=>{
 };
 $('t_cancel').onclick=()=>$('dlgText').close();
 
+/* ============================================================
+   GOAL — piano di risparmio
+   ============================================================ */
+function periodsWithShifts(){
+  const seen={};
+  S.shifts.forEach(s=>{ const p=periodOf(s.date); seen[p.y+'|'+p.m]=p; });
+  return Object.values(seen).sort((a,b)=> a.y-b.y || a.m-b.m);
+}
+/* media delle ultime 3 buste con turni: serve a proiettare i mesi futuri */
+function avgProfile(){
+  const ps = periodsWithShifts().slice(-3);
+  if(!ps.length) return null;
+  const A={plain:0,aften:0,lor:0,son:0,nat:0,hol:0,total:0}; let n=0;
+  ps.forEach(p=>{ const M=calcMonth(p.y,p.m); for(const k in A) A[k]+=M.A[k]||0; n+=M.list.length; });
+  for(const k in A) A[k]=r2(A[k]/ps.length);
+  return {A, shifts: Math.max(1, Math.round(n/ps.length)), base: ps.length};
+}
+/* nel periodo dei 18 anni le tariffe cambiano a metà: le mescolo sui giorni */
+function blendRates(y,m){
+  const R=periodRange(y,m), b=parseISO(S.birth);
+  const b18=new Date(b.getFullYear()+18, b.getMonth(), b.getDate());
+  const days=Math.round((R.to-R.from)/86400000)+1;
+  let over=0;
+  for(let i=0;i<days;i++){
+    const d=new Date(R.from.getFullYear(), R.from.getMonth(), R.from.getDate()+i);
+    if(d>=b18) over++;
+  }
+  const f=days>0?over/days:0, mix={};
+  ['base','aften','lor','son','nat'].forEach(k=> mix[k]= S.under[k]*(1-f) + S.over[k]*f);
+  mix.f=f; return mix;
+}
+function projectNet(y,m){
+  if(monthShifts(y,m).length) return {net: calcMonth(y,m).net, real:true};
+  const P=avgProfile(); if(!P) return {net:0, real:false};
+  const rt=blendRates(y,m), A=P.A;
+  const payBase=Math.max(A.total*rt.base, S.guaranteed*rt.base);
+  const gross = payBase + A.aften*rt.aften + A.lor*rt.lor + A.son*rt.son + A.nat*rt.nat + A.hol*rt.base
+              + A.total*S.kost + P.shifts*S.kostx;
+  const pension=gross*(S.pension/100);
+  const ami=gross-S.atp-pension;
+  const amb=Math.trunc(ami*0.08);
+  const taxable=ami-amb-S.fradrag;
+  const tax=taxable>0?Math.trunc(taxable*(S.trak/100)):0;
+  return {net: gross-S.atp-pension-amb-tax-P.shifts*S.mad-S.forening, real:false};
+}
+const payDay = (y,m) => new Date(y,m+1,0);          // stipendio l'ultimo giorno del mese
+const fixedTotal = () => S.wishes.filter(w=>w.type==='fixed').reduce((a,w)=>a+(+w.price||0),0);
+const savedTotal = () => (S.goal.deposits||[]).reduce((a,d)=>a+(+d.amount||0),0);
+
+function goalMonths(from, until, fixed){
+  const out=[]; let y=from.getFullYear(), m=from.getMonth();
+  while(out.length<120){
+    const pd=payDay(y,m);
+    if(until && pd>until) break;
+    if(pd>=from){
+      const pr=projectNet(y,m);
+      const disp=pr.net-fixed;
+      const cap=Math.max(0, Math.min(disp*(S.goal.maxpct/100), disp-S.goal.buffer));
+      out.push({y,m,pay:pd,net:pr.net,real:pr.real,disp,cap});
+    }
+    m++; if(m>11){m=0;y++;}
+    if(!until && out.length>=120) break;
+  }
+  return out;
+}
+function goalPlan(){
+  const G=S.goal;
+  const fixed=fixedTotal(), saved=savedTotal();
+  const dl=parseISO(G.deadline);
+  const today=new Date(); today.setHours(0,0,0,0);
+  const months=goalMonths(today, dl, fixed);
+  const need=Math.max(0, G.target-saved);
+  const capTot=months.reduce((a,x)=>a+x.cap,0);
+  const dispTot=months.reduce((a,x)=>a+Math.max(0,x.disp),0);
+  const feasible = capTot>=need-0.5;
+
+  let qs = months.map(x=>{
+    if(!feasible) return x.cap;
+    const share = dispTot>0 ? need*Math.max(0,x.disp)/dispTot : need/(months.length||1);
+    return Math.min(x.cap, share);
+  }).map(v=>Math.round(v/10)*10);
+  if(feasible){
+    let diff = need - qs.reduce((a,b)=>a+b,0);
+    for(let i=months.length-1;i>=0 && Math.abs(diff)>0.5;i--){
+      const add = diff>0 ? Math.min(diff, months[i].cap-qs[i]) : Math.max(diff, -qs[i]);
+      qs[i]=r2(qs[i]+add); diff=r2(diff-add);
+    }
+  }
+  let run=saved;
+  months.forEach((x,i)=>{ x.q=Math.max(0,qs[i]); run=r2(run+x.q); x.run=run; x.left=x.disp-x.q;
+                          x.pct=G.target>0?run/G.target*100:0; });
+
+  // se non ce la fa: quando ce la farebbe, e quanto raccoglie entro la data voluta
+  let altDate=null, altAmount=null;
+  if(!feasible){
+    altAmount = saved+capTot;
+    const long=goalMonths(today, null, fixed);
+    let acc=saved;
+    for(const x of long){ acc+=x.cap; if(acc>=G.target){ altDate=x.pay; break; } }
+  }
+  // dove dovrei essere adesso, in linea retta dal giorno in cui ho creato il piano
+  const st=parseISO(G.created||G.deadline);
+  const span=(dl-st)/86400000, gone=(today-st)/86400000;
+  const expected = span>0 ? G.target*Math.min(1,Math.max(0,gone/span)) : 0;
+
+  return {months, saved, fixed, need, feasible, capTot, altDate, altAmount, expected,
+          projected: months.length?months[months.length-1].run:saved};
+}
+
+function renderDeps(){
+  const G=S.goal;
+  const D=(G.deposits||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  $('gDeps').innerHTML = D.length ? D.map(d=>`<div class="wish">
+      <span style="width:20px;flex:none;text-align:center;color:var(--good);font-size:15px">✓</span>
+      <div class="nm"><div class="t">${d.note||'Deposit'}</div>
+        <div class="s">${parseISO(d.date).getDate()} ${MESI[parseISO(d.date).getMonth()]} ${parseISO(d.date).getFullYear()}</div></div>
+      <div style="font-weight:650;font-variant-numeric:tabular-nums">${kr0(d.amount)}</div>
+      <button class="x" data-ddel="${d.id}">×</button>
+    </div>`).join('') : '<div class="empty">Nothing put away yet.</div>';
+  document.querySelectorAll('[data-ddel]').forEach(b=>b.onclick=()=>{
+    S.goal.deposits = S.goal.deposits.filter(x=>x.id!==b.dataset.ddel); save(); render();
+  });
+}
+function renderGoal(){
+  const G=S.goal;
+  // nessun obiettivo impostato: niente piano, solo l'invito a compilarlo
+  if(!(+G.target>0) || !G.deadline || isNaN(parseISO(G.deadline))){
+    $('gSaved').textContent = kr0(savedTotal());
+    $('gCap').textContent = 'put aside so far';
+    $('gProg').querySelector('i').style.width = '0%';
+    $('gPct').textContent = ''; $('gTarget').textContent = 'no goal yet';
+    $('gLeft').textContent='—'; $('gPays').textContent='—'; $('gNext').textContent='—';
+    $('gStatus').innerHTML = '<div class="alert">Fill in <b>Goal settings</b> at the bottom of this page — what you want, how much it costs and by when — and the month-by-month plan shows up here.</div>';
+    $('gTable').innerHTML=''; $('gNote').textContent='';
+    renderDeps(); return;
+  }
+  const P=goalPlan();
+  const pctSaved = G.target>0 ? Math.min(100, P.saved/G.target*100) : 0;
+  $('gSaved').textContent = kr0(P.saved);
+  $('gCap').textContent = 'saved towards ' + (G.name||'your goal');
+  $('gProg').querySelector('i').style.width = pctSaved.toFixed(1)+'%';
+  $('gPct').textContent = pctSaved.toFixed(0)+'% there';
+  $('gTarget').textContent = 'goal ' + kr0(G.target) + ' by ' + parseISO(G.deadline).getDate() + ' ' + MESI[parseISO(G.deadline).getMonth()].slice(0,3);
+  $('gLeft').textContent = kr0(P.need);
+  $('gPays').textContent = P.months.length;
+  $('gNext').textContent = P.months.length ? kr0(P.months[0].q) : '—';
+
+  // stato
+  const diff = P.saved - P.expected;
+  let st='';
+  if(!avgProfile()) st = `<div class="alert">Add some shifts first — without them the app cannot estimate what you will earn.</div>`;
+  else if(!P.feasible){
+    st = `<div class="alert"><b>This goal does not fit.</b> With ${kr0(P.fixed)} of fixed costs, a ${kr0(G.buffer)} buffer and a ${G.maxpct}% ceiling, the most you can put aside is ${kr0(P.capTot)} — you are ${kr0(G.target-P.saved-P.capTot)} short.<br><br>
+      <b>a)</b> Same amount, later: you reach ${kr0(G.target)} around ${P.altDate ? P.altDate.getDate()+' '+MESI[P.altDate.getMonth()]+' '+P.altDate.getFullYear() : 'a date too far to estimate'}.<br>
+      <b>b)</b> Same date, smaller goal: by ${parseISO(G.deadline).getDate()+' '+MESI[parseISO(G.deadline).getMonth()]} you really get to <b>${kr0(P.altAmount)}</b>.</div>`;
+  }
+  else if(diff >= 200) st = `<div class="alert" style="border-color:var(--good)">You are <b>${kr0(diff)} ahead</b> of where the straight line says you should be. Keep going and you finish early.</div>`;
+  else if(diff <= -200) st = `<div class="alert" style="border-color:var(--critical)">You are <b>${kr0(-diff)} behind</b>. The plan below already catches it up — ${kr0(P.months.length?P.months[0].q:0)} on the next pay day instead of the original ${kr0(G.target/Math.max(1,P.months.length+1))}.</div>`;
+  else st = `<div class="alert" style="border-color:var(--good)">On track. ${kr0(P.need)} to go over ${P.months.length} pay day${P.months.length===1?'':'s'}.</div>`;
+  $('gStatus').innerHTML = st;
+
+  // tabella
+  const n0 = v => Math.round(v).toLocaleString('da-DK');
+  const rows = P.months.map(x=>`<tr>
+      <td>${MESI[x.m].slice(0,3)} ${String(x.y).slice(2)}${x.real?'':'<span style="color:var(--muted)">*</span>'}</td>
+      <td class="n">${x.pay.getDate()}/${x.pay.getMonth()+1}</td>
+      <td class="n">${n0(x.q)}</td>
+      <td class="n">${n0(x.run)}</td>
+      <td class="n">${x.pct.toFixed(0)}%</td>
+      <td class="n" style="${x.left<S.goal.buffer?'color:var(--critical)':''}">${n0(x.left)}</td>
+    </tr>`).join('');
+  $('gTable').innerHTML = P.months.length ? `<tr><th>Month</th><th class="n">Paid</th><th class="n">Save</th>
+      <th class="n">Total</th><th class="n">%</th><th class="n">Left</th></tr>${rows}` : '';
+  $('gNote').innerHTML = P.months.length
+    ? `All amounts in kr. <b>Left</b> is what stays in your hand after ${kr0(P.fixed)} of fixed costs and the amount you set aside — it turns red if it drops below your ${kr0(S.goal.buffer)} buffer. Rows marked <b>*</b> are estimates built on your last ${avgProfile()?avgProfile().base:0} pay period${avgProfile()&&avgProfile().base===1?'':'s'}; they change the moment you enter the real shifts.`
+    : 'No pay days left before the deadline.';
+
+  renderDeps();
+}
+
+/* --- interazione goal --- */
+$('gAdd').onclick=()=>{
+  $('d_amt').value=''; $('d_note').value=''; $('d_date').value=iso(new Date());
+  $('dlgDep').showModal();
+};
+$('d_cancel').onclick=()=>$('dlgDep').close();
+$('d_save').onclick=()=>{
+  const a=+$('d_amt').value||0; if(!a){ $('dlgDep').close(); return; }
+  S.goal.deposits.push({id:uid(), amount:a, date:$('d_date').value||iso(new Date()), note:$('d_note').value.trim()});
+  save(); $('dlgDep').close(); render();
+};
+const GFIELDS={g_name:'name', g_target:'target', g_deadline:'deadline', g_buffer:'buffer', g_maxpct:'maxpct'};
+function fillGoal(){ for(const id in GFIELDS) $(id).value = S.goal[GFIELDS[id]]; }
+Object.keys(GFIELDS).forEach(id=>{
+  $(id).oninput=()=>{ const k=GFIELDS[id];
+    S.goal[k] = (k==='name'||k==='deadline') ? $(id).value : (+$(id).value||0);
+    if(!S.goal.created && +S.goal.target>0 && S.goal.deadline) S.goal.created = iso(new Date());
+    save(); render(); };
+});
+
 /* --- avvio --- */
 document.documentElement.dataset.theme = S.theme || 'light';
 { const p = periodOf(iso(new Date())); curY = p.y; curM = p.m;
@@ -960,6 +1230,7 @@ document.documentElement.dataset.theme = S.theme || 'light';
     if(monthShifts(py,pm).length){ curY=py; curM=pm; }
   } }
 fillSettings();
+fillGoal();
 render();
 </script>
 </body>

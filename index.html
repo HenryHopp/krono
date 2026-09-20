@@ -376,6 +376,10 @@ dialog h3{margin:0 0 12px;font-size:16px}
       <div><label>Madpenge</label><input type="number" step="0.01" id="s_mad"></div>
     </div>
     <div class="row" style="margin-top:8px">
+      <div><label>Personligtillæg / hour</label><input type="number" step="0.01" id="s_pers"></div>
+      <div><label>Paid from</label><input type="date" id="s_persfrom"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
       <div><label>Fradrag / month</label><input type="number" step="0.01" id="s_fradrag"></div>
       <div><label>Trækprocent %</label><input type="number" step="0.01" id="s_trak"></div>
     </div>
@@ -390,10 +394,16 @@ dialog h3{margin:0 0 12px;font-size:16px}
   <div class="card">
     <h2>Data</h2>
     <div class="row">
-      <button class="ghost" id="expBtn">Export backup</button>
-      <button class="ghost" id="impBtn">Import backup</button>
+      <button class="ghost" id="saveFileBtn">💾 Save backup file</button>
+      <button class="ghost" id="loadFileBtn">📂 Load backup file</button>
     </div>
-    <div class="note">Your data lives only on this device. Export a backup now and then — if you clear your browser data, it is gone.</div>
+    <input type="file" id="fileIn" accept=".json,.txt,application/json,text/plain" hidden>
+    <div class="note">One tap each way — no copy-pasting. The file is called <b>krono-backup.json</b>; keep it in your Files or OneDrive and it is always there when you need it.</div>
+    <div class="row" style="margin-top:12px">
+      <button class="ghost" id="expBtn" style="font-size:12px">Copy as text</button>
+      <button class="ghost" id="impBtn" style="font-size:12px">Paste text</button>
+    </div>
+    <div class="note">Your data lives only on this device. Save a backup now and then — if you clear your browser data, it is gone.</div>
   </div>
 </section>
 
@@ -469,6 +479,7 @@ const DEF = {
   under: { base:88.96, aften:16.54, lor:16.54, son:26.15, nat:0 },
   over:  { base:148.49, aften:23.03, lor:23.03, son:31.46, nat:31.46 },
   kost: 1.00, kostx: 6.00, mad: 15.00,
+  personlig: 0, personligFrom: '',
   fradrag: 0, trak: 0, atp: 66, forening: 50, pension: 0,
   shifts: [], wishes: [], theme: 'light',
   goal: {name:'', target:0, deadline:'',
@@ -590,9 +601,10 @@ function calcShift(sh){
   for(const key in out) r[key] = (out[key]/60)*k;
   r.total = (pFrom!==null) ? (out.plain+out.aften+out.lor+out.son+out.nat)/60 : worked;
   r.rates = ratesFor(sh.date);
+  r.pers = (S.personlig>0 && (!S.personligFrom || sh.date >= S.personligFrom)) ? r.total : 0;
   r.gross = r.total*r.rates.base + r.aften*r.rates.aften + r.lor*r.rates.lor
           + r.son*r.rates.son + r.nat*r.rates.nat + r.hol*r.rates.base
-          + r.total*S.kost + S.kostx;
+          + r.total*S.kost + S.kostx + r.pers*S.personlig;
   const d0=parseISO(sh.date); const hol0=getHol(d0.getFullYear())[sh.date];
   r.holName = (hol0 && r.hol>0) ? hol0.name : null;
   return r;
@@ -621,11 +633,11 @@ function monthShifts(y,m){
 const r2 = n => Math.round(n*100)/100;
 function calcMonth(y,m){
   const list = monthShifts(y,m);
-  const A = {plain:0,aften:0,lor:0,son:0,nat:0,hol:0,total:0};
+  const A = {plain:0,aften:0,lor:0,son:0,nat:0,hol:0,total:0,pers:0};
   // le ore si sommano prima e si arrotondano a 2 decimali, poi si moltiplicano
   // per la tariffa — è così che fa la busta paga vera
-  const G = {under:{plain:0,aften:0,lor:0,son:0,nat:0,hol:0,total:0},
-             over: {plain:0,aften:0,lor:0,son:0,nat:0,hol:0,total:0}};
+  const G = {under:{plain:0,aften:0,lor:0,son:0,nat:0,hol:0,total:0,pers:0},
+             over: {plain:0,aften:0,lor:0,son:0,nat:0,hol:0,total:0,pers:0}};
   list.forEach(s=>{
     const r=calcShift(s);
     const g = (r.rates===S.over) ? G.over : G.under;
@@ -636,21 +648,23 @@ function calcMonth(y,m){
     const g=G[name], rt=S[name];
     for(const k in g) g[k]=r2(g[k]);
     for(const k in A) A[k]+=g[k];
-    payBase += g.total*rt.base;
-    payAften+= g.aften*rt.aften;
-    payLor  += g.lor*rt.lor;
-    paySon  += g.son*rt.son;
-    payNat  += g.nat*rt.nat;
-    payHol  += g.hol*rt.base;
+    // la busta paga arrotonda OGNI RIGA a 2 decimali e poi somma: faccio uguale
+    payBase += r2(g.total*rt.base);
+    payAften+= r2(g.aften*rt.aften);
+    payLor  += r2(g.lor*rt.lor);
+    paySon  += r2(g.son*rt.son);
+    payNat  += r2(g.nat*rt.nat);
+    payHol  += r2(g.hol*rt.base);
   });
   // garanzia ore minime
   const rt = ratesFor(list.length ? list[0].date : iso(new Date(y,m,15)));
   const guarPay = S.guaranteed * rt.base;
-  const guarBonus = Math.max(0, guarPay - payBase);
+  const guarBonus = r2(Math.max(0, guarPay - payBase));
 
-  const kost  = A.total*S.kost;
-  const kostx = list.length*S.kostx;
-  const gross = payBase+guarBonus+payAften+payLor+paySon+payNat+payHol+kost+kostx;
+  const kost  = r2(A.total*S.kost);
+  const kostx = r2(list.length*S.kostx);
+  const pers  = r2(A.pers*S.personlig);
+  const gross = r2(payBase+guarBonus+payAften+payLor+paySon+payNat+payHol+kost+kostx+pers);
 
   // trattenute (verificate sulle buste paga: troncamento a corone intere)
   const pension = gross*(S.pension/100);
@@ -659,9 +673,9 @@ function calcMonth(y,m){
   const taxable = amIncome - amb - S.fradrag;
   const tax = taxable>0 ? Math.trunc(taxable*(S.trak/100)) : 0;
   const mad = list.length*S.mad;
-  const net = gross - S.atp - pension - amb - tax - mad - S.forening;
+  const net = r2(gross - S.atp - pension - amb - tax - mad - S.forening);
 
-  return {list,A,payBase,guarBonus,payAften,payLor,paySon,payNat,payHol,kost,kostx,
+  return {list,A,payBase,guarBonus,payAften,payLor,paySon,payNat,payHol,kost,kostx,pers,
           gross,pension,amIncome,amb,taxable,tax,mad,net,
           fritvalg: gross*0.0985, ferie: gross*0.125, rates: rt};
 }
@@ -745,6 +759,7 @@ function renderPaga(M){
   if(M.payHol>0.01)    t += rw(`Helligdagstillæg · ${h(M.A.hol)}`, kr(M.payHol));
   if(M.kost>0.01)      t += rw(`Kosttillæg · ${h(M.A.total)} × ${dec(S.kost)}`, kr(M.kost));
   if(M.kostx>0.01)     t += rw(`Særligt kosttillæg · ${M.list.length} shifts`, kr(M.kostx));
+  if(M.pers>0.01)      t += rw(`Personligtillæg · ${h(M.A.pers)} × ${dec(S.personlig)}`, kr(M.pers));
   t += rw('<b>Gross</b>', '<b>'+kr(M.gross)+'</b>', 'tot');
   t += rw('ATP', '−'+kr(S.atp), 'sep');
   if(M.pension>0.01) t += rw(`Pension (${S.pension}%)`, '−'+kr(M.pension));
@@ -983,7 +998,7 @@ $('w_save').onclick=()=>{
 const FIELDS = {
   s_birth:'birth', s_guar:'guaranteed', s_kost:'kost', s_kostx:'kostx', s_mad:'mad',
   s_fradrag:'fradrag', s_trak:'trak', s_atp:'atp', s_forening:'forening', s_pension:'pension',
-  s_period:'periodStart'
+  s_period:'periodStart', s_pers:'personlig', s_persfrom:'personligFrom'
 };
 const RATEF = {
   u_base:['under','base'], u_aften:['under','aften'], u_lor:['under','lor'], u_son:['under','son'], u_nat:['under','nat'],
@@ -996,11 +1011,41 @@ function fillSettings(){
 for(const id in FIELDS) document.addEventListener('DOMContentLoaded',()=>{});
 Object.keys(FIELDS).forEach(id=>{
   $(id).oninput = ()=>{ const k=FIELDS[id];
-    S[k] = (id==='s_birth') ? $(id).value : (+$(id).value||0); save(); render(); };
+    S[k] = (id==='s_birth'||id==='s_persfrom') ? $(id).value : (+$(id).value||0); save(); render(); };
 });
 Object.keys(RATEF).forEach(id=>{
   $(id).oninput = ()=>{ const [g,k]=RATEF[id]; S[g][k] = +$(id).value||0; save(); render(); };
 });
+
+/* --- backup su file: un tocco per salvare, uno per caricare --- */
+function applyBackup(txt){
+  const o = JSON.parse(txt);
+  if(!o || typeof o!=='object' || !Array.isArray(o.shifts)) throw new Error('bad');
+  S = Object.assign({}, DEF, o);
+  save(); fillSettings();
+  { const p = periodOf(iso(new Date())); curY=p.y; curM=p.m;
+    if(!monthShifts(curY,curM).length){ let py=curY,pm=curM-1; if(pm<0){pm=11;py--;}
+      if(monthShifts(py,pm).length){curY=py;curM=pm;} } }
+  render();
+  return o.shifts.length;
+}
+$('saveFileBtn').onclick=()=>{
+  const blob = new Blob([JSON.stringify(S,null,1)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'krono-backup.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+};
+$('loadFileBtn').onclick=()=>{ $('fileIn').value=''; $('fileIn').click(); };
+$('fileIn').onchange=()=>{
+  const f = $('fileIn').files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ try{ const n=applyBackup(r.result); alert(n+' shifts loaded.'); }
+                   catch(e){ alert('That file is not a Krono backup.'); } };
+  r.onerror = ()=>alert('Could not read the file.');
+  r.readAsText(f);
+};
 
 $('expBtn').onclick=()=>{
   $('t_title').textContent='Backup — copy this text and keep it safe';
@@ -1014,7 +1059,7 @@ $('impBtn').onclick=()=>{
   $('t_text').value='';
   $('t_ok').textContent='Import';
   $('t_ok').onclick=()=>{
-    try{ S=Object.assign({},DEF,JSON.parse($('t_text').value)); save(); fillSettings(); render(); $('dlgText').close(); }
+    try{ applyBackup($('t_text').value); $('dlgText').close(); }
     catch(e){ alert('Invalid backup.'); }
   };
   $('dlgText').showModal();

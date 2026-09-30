@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FAQ — Krono</title>
+<meta name="description" content="How Krono works: pay periods, supplements, rounding, backups and offline use.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1c5cab">
+<link rel="canonical" href="https://henryhopp.github.io/krono/faq.html">
+<link rel="icon" href="icon-512.png">
+<style>:root{color-scheme:light;--plane:#f4f7fb;--surface:#fff;--ink:#0b1220;--ink-2:#4a5568;
+ --muted:#7c8798;--border:rgba(11,18,32,.09);--accent:#1c5cab}
+:root[data-theme="dark"]{color-scheme:dark;--plane:#0b0f16;--surface:#151b24;--ink:#fff;
+ --ink-2:#c2ccd9;--muted:#8996a6;--border:rgba(255,255,255,.11);--accent:#5b9ae8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+ --plane:#0b0f16;--surface:#151b24;--ink:#fff;--ink-2:#c2ccd9;--muted:#8996a6;
+ --border:rgba(255,255,255,.11);--accent:#5b9ae8}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);line-height:1.6;font-size:16px;
+ font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:#1c5cab;color:#fff;padding:calc(env(safe-area-inset-top) + 20px) 16px 20px}
+header .in{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:12px}
+header a{color:#fff;text-decoration:none;font-weight:600}
+header h1{font-size:19px;margin:0;font-weight:650}
+main{max-width:680px;margin:0 auto;padding:24px 16px 64px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+ padding:20px;margin-bottom:16px}
+h2{font-size:17px;margin:0 0 10px}
+h2:not(:first-child){margin-top:26px}
+p,li{color:var(--ink-2);margin:0 0 12px}
+li{margin-bottom:8px}
+a{color:var(--accent)}
+.upd{font-size:13px;color:var(--muted)}
+.back{display:inline-block;margin-top:8px;font-weight:600;text-decoration:none}
+strong{color:var(--ink)}
+</style>
+</head>
+<body>
+<header><div class="in"><a href="./" aria-label="Back to Krono">←</a><h1>FAQ</h1></div></header>
+<main>
+<div class="card">
+<p>Short answers to the things that come up most.</p>
+<h2>Where is my data kept?</h2>
+<p>In your own browser, on this device. There is no account and no server: nothing you type is sent anywhere, and nobody else can see it.</p>
+<h2>Why does my month start on the 21st?</h2>
+<p>Many employers use a shifted pay period — the month they pay you for runs from the 21st of one month to the 20th of the next, not from the 1st to the 31st. Nothing is lost: hours after the 20th are simply paid in the following month. You can change the starting day, or switch to a normal calendar month, in Settings.</p>
+<h2>The total doesn't match my payslip. What now?</h2>
+<p>Check these, in order: are all your shifts entered, including the last days of the period? Is the pay period set to the right starting day? Are your hourly rate, supplements, fradrag and trækprocent still current? A changed tax card is the most common cause. If it still differs, the payslip is right and it is worth asking your employer why.</p>
+<h2>What are aftentillæg, lørdagstillæg and søndagstillæg?</h2>
+<p>Supplements on top of your hourly rate for working at less convenient times: evenings, Saturday afternoons and Sundays. Krono works out which hours qualify from the start and end time of each shift, so you never have to count them yourself. The time windows and the rates are in Settings.</p>
+<h2>What is personligtillæg?</h2>
+<p>A personal supplement paid on every hour you work, on top of the standard rate. If yours started on a particular date, set that date in Settings — hours before it are then left alone.</p>
+<h2>What are fradrag and trækprocent?</h2>
+<p>Two numbers from your tax card. Fradrag is the amount you may earn each month before tax; trækprocent is the rate applied to the rest. Both are on your tax card, and both can change during the year — when they do, update them in Settings.</p>
+<h2>Why are the amounts rounded down?</h2>
+<p>Because that is what a real payslip does. Labour-market contribution and tax are truncated to whole kroner rather than rounded, and each pay line is rounded to two decimals before being added up. Krono copies that exactly, so the totals match to the øre.</p>
+<h2>I was on holiday — why do those days show about two hours?</h2>
+<p>Scheduling systems often mark a holiday with a short placeholder entry so the day is not empty. Those are not worked hours and Krono does not count them. Holiday pay, if you are due any, appears on your payslip as its own line.</p>
+<h2>What happens when I turn 18?</h2>
+<p>Rates usually go up. Krono holds two sets of rates and switches to the adult ones by itself on your birthday — including part-way through a pay period, where it applies each rate to the right days.</p>
+<h2>Does it work without internet?</h2>
+<p>Yes. After the first visit the whole app is stored on your device. It opens and calculates with no connection at all.</p>
+<h2>How do I move everything to another phone?</h2>
+<p>Settings → Save backup file, then open Krono on the other device and use Load backup file. Everything comes across: shifts, rates, budget and goal.</p>
+<h2>How do I delete everything?</h2>
+<p>Clear the site data for this address in your browser settings. That erases every trace, immediately and permanently — there is no copy anywhere else.</p>
+<p class="upd">Last updated: 26 September 2026</p>
+<a class="back" href="./">← Back to Krono</a>
+</div>
+</main>
+</body>
+</html>
